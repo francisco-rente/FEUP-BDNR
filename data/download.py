@@ -69,12 +69,12 @@ def download_dataset(dataset):
     version = [k for k, v in dataset_list.items() if dataset in v][0]
     url = build_url(dataset, version)
 
-    if not os.path.exists("./datasets/Source/"):
-        os.makedirs("./datasets/Source/")
+    if not os.path.exists("./datasets/source/"):
+        os.makedirs("./datasets/source/")
 
     print("Downloading dataset from: ", url)
-#    dm = tfds.download.DownloadManager(download_dir='./datasets') # , extract_dir='./datasets')
-#    dm.download(url)
+    dm = tfds.download.DownloadManager(download_dir='./datasets/source/') # , extract_dir='./datasets/source')
+    dm.download(url)
 
 
 def main():
