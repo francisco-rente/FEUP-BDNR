@@ -2,17 +2,8 @@ import json
 import random
 import string
 
-store_names = ['Fashion Avenue', 'Tech Outlet', 'Fresh Grocers', 'Home Goods', 'Pet Palace', 'Beauty Emporium',
-               'Sports Center', 'Book Nook', 'Gourmet Foods', 'Toy Box', 'Office Supplies', 'Gift Gallery',
-               'Jewelry Box', 'Music World', 'Party Supplies', 'Outdoor Adventures', 'Tools & Hardware',
-               'Crafty Corner', 'Artistic Endeavors', 'Baby Boutique', 'Car Parts', 'Discount Outlet',
-               'Electronics Emporium', 'Furniture Gallery', 'Garden Oasis', 'Health & Wellness', 'Kitchen Essentials',
-               'Liquor World', 'Maternity Wear', 'Nutrition Shop', 'Outdoor Living', 'Photo Shop', 'Seasonal Celebrations',
-               'Travel Gear', 'Underground Comics', 'Vintage Finds', 'Watches & Accessories', 'Youth Culture',
-               'Bath & Body Works', 'Comic Book Store', 'Designer Boutique', 'Eco-Friendly Living', 'Fashion Forward',
-                'Gaming Hub', 'Hobby Shop', 'Interior Design', 'Juice Bar', 'Kitchen & Bath', 'Lingerie Store'
-                'Men\'s Wearhouse', 'Natural Foods', 'Outdoor Gear', 'Pet Supplies', 'Quilting Supplies', 'Retro Clothing',
-               ]
+store_names = ["Aldi", "Walmart", "Carrefour", "Kroger", "Lidl", "Tesco", "Target", "Sainsbury's", "Costco", "Asda", "Metro", "Coop", "Safeway", "Morrisons", "SuperValu", "Auchan", "Emart", "Biedronka", "Netto", "Lotte Mart", "Edeka", "Migros", "Giant", "AEON", "Casino", "Sheng Siong", "Lianhua", "Dia", "Maxima", "Ralphs", "Géant Casino", "Food Lion", "Whole Foods Market", "Bi-Lo", "HEB", "Piggly Wiggly", "WinCo Foods", "Sprouts Farmers Market", "Food 4 Less", "Vons", "Publix", "Meijer", "La Placita", "Super C", "Price Chopper", "Giant Eagle", "FreshCo", "Gristedes", "Food Basics", "City Market"]         
+
 def main():
     store_locations = []
     for i in range(50):
