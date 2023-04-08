@@ -41,11 +41,12 @@ def revert_objects(df):
 
 def transform_to_json(dataset):
     df = pd.read_csv(SOURCE_PATH + dataset, sep='\t',
-                     on_bad_lines='skip', chunksize=20) # Get iterator
+                     on_bad_lines='skip', chunksize=100) # Get iterator
     print("READ TSV")
     df = next(df)
 
     print("Products with more than 1 review", df.duplicated(subset=['product_id']).sum())
+    print("IDS", df[df.duplicated(subset=['product_id'])]['product_id'].values)
 
     new_df = revert_objects(df)
 
