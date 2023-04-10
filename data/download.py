@@ -4,6 +4,8 @@ import sys
 import functools
 import operator
 
+DATASET_SOURCE = "./datasets/source/"
+
 DATASETS_V1_00 = [
             "Wireless",
             "Watches",
@@ -69,25 +71,26 @@ def download_dataset(dataset):
     version = [k for k, v in dataset_list.items() if dataset in v][0]
     url = build_url(dataset, version)
 
-    if not os.path.exists("./datasets/source/"):
-        os.makedirs("./datasets/source/")
+    if not os.path.exists(DATASET_SOURCE):
+        os.makedirs(DATASET_SOURCE)
 
-    res = tfds.download.Resource(url=url, path="./datasets/source/{dataset}.tsv.gz".format(dataset=dataset))
+    res = tfds.download.Resource(url=url, path=DATASET_SOURCE)
 
     print("Downloading dataset from: ", url)
-    dm = tfds.download.DownloadManager(download_dir="./datasets/source/", extract_dir="./datasets/source/")
+    dm = tfds.download.DownloadManager(download_dir=DATASET_SOURCE, extract_dir=DATASET_SOURCE)
     dm.download_and_extract(res)
 
+
 def delete_downloaded_file(type, identifier):
-    file = [f for f in os.listdir("./datasets/source/") if f.endswith(type) and identifier in f][0]
+    file = [f for f in os.listdir(DATASET_SOURCE) if f.endswith(type) and identifier in f][0]
     print("Deleting file: ", file)
-    os.remove(os.path.join("./datasets/source/", file))
+    os.remove(os.path.join(DATASET_SOURCE, file))
 
 
-def rename_downloaded_file(identifier):
-    file = [f for f in os.listdir("./datasets/source/") if identifier in f and f.startswith("GZIP")][0]
+def rename_downloaded_file(identifier, dataset):
+    file = [f for f in os.listdir(DATASET_SOURCE) if identifier in f and f.startswith("GZIP")][0]
     print("Renaming file: ", file)
-    os.rename(os.path.join("./datasets/source/", file), f"./datasets/source/{dataset_arg}.tsv") 
+    os.rename(os.path.join(DATASET_SOURCE, file), f"{DATASET_SOURCE}{dataset}.tsv") 
 
 
 def main():
@@ -105,6 +108,7 @@ def main():
         return
 
     dataset_arg = sys.argv[1]
+    identifier = dataset_arg[0:4]
 
     if dataset_arg not in functools.reduce(operator.iconcat,
                                            dataset_list.values(), []):
@@ -112,16 +116,11 @@ def main():
         return
 
     download_dataset(dataset_arg)
+    # "{sanitized_url}{url_checksum}.tmp.{uuid}"
+    rename_downloaded_file(identifier, dataset_arg)  # rename tsv
+    delete_downloaded_file(".INFO", identifier)  # remove INFO
+    delete_downloaded_file(".gz", identifier)  # remove zip
+
 
 if __name__ == "__main__":
     main()
-
-    dataset_arg = sys.argv[1]
-    identifier = dataset_arg[0:4]
-    print(identifier)
-
-    # "{sanitized_url}{url_checksum}.tmp.{uuid}"
-
-    rename_downloaded_file(identifier) # rename tsv
-    delete_downloaded_file(".INFO", identifier) # remove INFO
-    delete_downloaded_file(".gz", identifier) # remove zip   
