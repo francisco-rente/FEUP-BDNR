@@ -72,9 +72,22 @@ def download_dataset(dataset):
     if not os.path.exists("./datasets/source/"):
         os.makedirs("./datasets/source/")
 
+    res = tfds.download.Resource(url=url, path="./datasets/source/{dataset}.tsv.gz".format(dataset=dataset))
+
     print("Downloading dataset from: ", url)
-    dm = tfds.download.DownloadManager(download_dir='./datasets/source/') # , extract_dir='./datasets/source')
-    dm.download(url)
+    dm = tfds.download.DownloadManager(download_dir="./datasets/source/", extract_dir="./datasets/source/")
+    dm.download_and_extract(res)
+
+def delete_downloaded_file(type, identifier):
+    file = [f for f in os.listdir("./datasets/source/") if f.endswith(type) and identifier in f][0]
+    print("Deleting file: ", file)
+    os.remove(os.path.join("./datasets/source/", file))
+
+
+def rename_downloaded_file(identifier):
+    file = [f for f in os.listdir("./datasets/source/") if identifier in f and f.startswith("GZIP")][0]
+    print("Renaming file: ", file)
+    os.rename(os.path.join("./datasets/source/", file), f"./datasets/source/{dataset_arg}.tsv") 
 
 
 def main():
@@ -100,6 +113,15 @@ def main():
 
     download_dataset(dataset_arg)
 
-
 if __name__ == "__main__":
     main()
+
+    dataset_arg = sys.argv[1]
+    identifier = dataset_arg[0:4]
+    print(identifier)
+
+    # "{sanitized_url}{url_checksum}.tmp.{uuid}"
+
+    rename_downloaded_file(identifier) # rename tsv
+    delete_downloaded_file(".INFO", identifier) # remove INFO
+    delete_downloaded_file(".gz", identifier) # remove zip   
