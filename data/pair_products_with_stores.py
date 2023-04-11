@@ -6,13 +6,13 @@ import random
 import json
 
 DEFAULT_FILE = 'wireless.json'
-OUTPUT_FILE = './datasets/json/pair_products_with_stores.json'
+OUTPUT_FILE = './datasets/json/stores_with_items.json'
 DEFAULT_NO_PRODUCTS = 20
 STORE_SOURCE_FILE = './datasets/json/stores.json'
 
 
 def read_products(filename: str) -> pandas.DataFrame:
-    return pandas.read_json('./datasets/json/{filename}'.format(filename=filename))['product_id']
+    return pandas.read_json(f'./datasets/json/{filename}')['product_id']
 
 
 def read_stores() -> list:

@@ -16,8 +16,10 @@ if [ -f "$OUTPUT/$FINAL_FILE_NAME" ]; then
 fi
 
 files=`ls $OUTPUT/*.json`  # | tr
+files=`echo $files | sed 's/\.\/datasets\/json\/stores\.json//g'`
 echo $files
-print $files | xargs jq ".[]" -s > "datasets/json/$FINAL_FILE_NAME"
+# https://stackoverflow.com/questions/42011086/merge-arrays-of-json
+print $files | xargs jq "add" -s > "datasets/json/$FINAL_FILE_NAME" #
 
 
 
