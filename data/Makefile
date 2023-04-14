@@ -1,4 +1,4 @@
-SOURCE_DIR = "./datasets/source/"
+SOURCE_DIR = 
 JSON_DIR = "./datasets/json/"
 PRODUCTS = "products.json"
 
@@ -34,12 +34,17 @@ generate_stores: permissions
 	python3 generate_stores.py
 	@echo "==> Generating stores done"
 
-pair_stores: generate_stores trasnform_products
+generate_users: permissions transform_products
+	@echo "==> Generating users"
+	python3 create_users.py
+	@echo "==> Generating users done"
+
+pair_stores: generate_stores transform_products
 	@echo "==> Pairing stores"
 	python3 pair_products_with_stores.py -f $(PRODUCTS) -n 30
 	@echo "==> Pairing stores done"
 
-all : pair_stores 
+all : pair_stores generate_users
 
 clean:
 	@echo "==> Cleaning datasets"
