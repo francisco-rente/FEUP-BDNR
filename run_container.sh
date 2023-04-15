@@ -1,1 +1,1 @@
-docker run -it --rm test-couchbase:latest --name couchbase-store -p 8091-8097:8091-8097 -p 9123:9123 -p 11207:11207 -p 11210:11210 -p 11280:11280 -p 18091-18097:18091-18097
+docker run --rm -t test-couchbase --name couchbase-store -p 8091-9096:8091-9096 -p 11210-11211:11210-11211 

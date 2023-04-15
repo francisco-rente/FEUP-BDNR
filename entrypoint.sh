@@ -1,10 +1,14 @@
 #!/bin/bash
 
 # start couchbase on background detached 
-/opt/couchbase/bin/couchbase-server -- -noinput -detached
+set -m
+/entrypoint.sh couchbase-server &
 
 echo "Waiting for Couchbase to start up..."
+
+# Wait until it's ready
 sleep 10
+
 
 # create cluster
 /opt/couchbase/bin/couchbase-cli cluster-init -c localhost:8091 --cluster-username admin --cluster-password password --cluster-ramsize 256 --cluster-index-ramsize 256 --cluster-fts-ramsize 256 --services data,index,query,fts
@@ -30,6 +34,7 @@ echo "User created"
 # import datasets/json/users.json /opt/couchbase/var/lib/couchbase/input/users.json
 /opt/couchbase/bin/cbimport json -c localhost:8091 -u admin -p password -b server -d file:///opt/couchbase/var/lib/couchbase/input/users.json -f list -g store::users::%customer_id% -t 4
 
+
 # list buckets
 /opt/couchbase/bin/couchbase-cli bucket-list -c localhost:8091 --username admin --password password
 
@@ -39,7 +44,24 @@ echo "User created"
 # list collections
 /opt/couchbase/bin/couchbase-cli collection-manage -c localhost:8091 --username admin --password password --bucket server --list-collections
 
+# create primary index
+/opt/couchbase/bin/cbq -e localhost:8093 -u admin -p password -s "CREATE PRIMARY INDEX ON server.store.stores" -f json
+/opt/couchbase/bin/cbq -e localhost:8093 -u admin -p password -s "CREATE PRIMARY INDEX ON server.store.products" -f json
+/opt/couchbase/bin/cbq -e localhost:8093 -u admin -p password -s "CREATE PRIMARY INDEX ON server.store.users" -f json
+
+
+# create index on store_id
+/opt/couchbase/bin/cbq -e localhost:8093 -u admin -p password -s "CREATE INDEX store_id ON server.store.stores(store_id)" -f json
+# create index on product_id
+/opt/couchbase/bin/cbq -e localhost:8093 -u admin -p password -s "CREATE INDEX product_id ON server.store.products(product_id)" -f json
+# create index on customer_id
+/opt/couchbase/bin/cbq -e localhost:8093 -u admin -p password -s "CREATE INDEX customer_id ON server.store.users(customer_id)" -f json
+
+
+# Attach to couchbase entrypoint
+fg 1
+
 
 # keep container running
-tail -f /dev/null
+# tail -f /dev/null
 
