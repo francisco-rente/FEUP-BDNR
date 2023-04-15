@@ -99,6 +99,7 @@ def create_contact(store_name):
 
 def create_store(store_name, index):
     store = {}
+    store['store_id'] = index + 1
     store['name'] = store_name
     store['location'] = create_location(index)
     store['contact'] = create_contact(store_name)

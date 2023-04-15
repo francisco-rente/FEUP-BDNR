@@ -62,7 +62,6 @@ def create_dataframe(products_df, customer_df):
                 info['customer_id'] = customer_id
                 info['products_reviews_pairs'] = np.array([{'product_id': row['product_id'], 'review_id': review['review_id']}])
                 customer_df.loc[len(customer_df)] = info
-                print(info['location'])
                 customer_df.loc[customer_df['customer_id'] == customer_id, 'location'] = json.dumps(info['location'])
 
     return customer_df
@@ -76,5 +75,7 @@ if __name__ == '__main__':
 
     print("Created users with " + str(len(df)) + " entries")
     df['location'] = df['location'].apply(lambda x: json.loads(x))
-    df.to_json(OUTPUT_FILE, lines=True, orient='records')
+    
+    # save as array of json objects
+    df.to_json(OUTPUT_FILE, orient='records')
 
