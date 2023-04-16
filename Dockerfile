@@ -23,6 +23,8 @@ COPY ./entrypoint.sh ./config-entrypoint.sh
 # Make the entrypoint script executable
 RUN chmod +x ./config-entrypoint.sh
 
+RUN apt-get update && apt-get install -y curl
+
 
 ENTRYPOINT [ "/config-entrypoint.sh" ]
 

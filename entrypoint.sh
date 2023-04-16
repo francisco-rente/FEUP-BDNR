@@ -4,11 +4,44 @@
 set -m
 /entrypoint.sh couchbase-server &
 
-echo "Waiting for Couchbase to start up..."
-
-# Wait until it's ready
+# Check if couchbase server is up
+#check_db() {
+#    curl --silent http://127.0.0.1:8091/pools > /dev/null
+#}
+#
+## Wait until it's ready
+#until [[ $(check_db) = 0 ]]; do
+#>&2 echo "Waiting for Couchbase Server to be available"
+#sleep 1
+#done
 sleep 10
 
+
+curl -u Administrator:password \
+http://localhost:8091/settings/security \
+-d disableUIOverHttp=false
+
+HOSTNAME="localhost"
+
+#echo "Initialize the node"
+#curl --silent "http://${HOSTNAME}:8091/nodes/self/controller/settings" \
+#-d path="/opt/couchbase/var/lib/couchbase/data" \
+#-d index_path="/opt/couchbase/var/lib/couchbase/data"
+
+echo "Hostname: ${HOSTNAME}"
+
+echo "Setting hostname"
+curl --silent "http://${HOSTNAME}:8091/node/controller/rename" \
+-d hostname=${HOSTNAME}
+
+# set up web console
+curl --silent "http://${HOSTNAME}:8091/settings/web" \
+-d port=8091 \
+-d username=admin \
+-d password=password \
+-d enable=true
+
+echo "Setting up services"
 
 # create cluster
 /opt/couchbase/bin/couchbase-cli cluster-init -c localhost:8091 --cluster-username admin --cluster-password password --cluster-ramsize 256 --cluster-index-ramsize 256 --cluster-fts-ramsize 256 --services data,index,query,fts
