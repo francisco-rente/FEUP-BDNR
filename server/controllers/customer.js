@@ -1,10 +1,10 @@
-const Store = require('../models/store');
+const Customer = require('../models/customer');
 
-const storeController = {
+const customerController = {
   getAll: async (req, res, next) => {
     try {
-      const stores = await Store.findAll();
-      res.json(stores);
+      const customer = await Customer.findAll();
+      res.json(customer);
     } catch (err) {
       next(err);
     }
@@ -12,8 +12,8 @@ const storeController = {
 
   getById: async (req, res, next) => {
     try {
-      const store = await Store.findById(req.params.id);
-      if (!store) {
+      const customer = await Customer.findById(req.params.id);
+      if (!customer) {
         res.status(404).json({ message: 'Store not found' });
       } else {
         res.json(Store);
@@ -22,17 +22,16 @@ const storeController = {
       next(err);
     }
   },
-
+/*
   create: async (req, res, next) => {
     try {
-      const store = await Store.create(req.body);
+      const customer = await Store.create(req.body);
       res.status(201).json(book);
     } catch (err) {
       next(err);
     }
   },
 
-  /*
 
   update: async (req, res, next) => {
     try {

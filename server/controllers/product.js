@@ -1,10 +1,10 @@
-const Store = require('../models/store');
+const Customer = require('../models/product');
 
-const storeController = {
+const productController = {
   getAll: async (req, res, next) => {
     try {
-      const stores = await Store.findAll();
-      res.json(stores);
+      const product = await Product.findAll();
+      res.json(product);
     } catch (err) {
       next(err);
     }
@@ -12,27 +12,26 @@ const storeController = {
 
   getById: async (req, res, next) => {
     try {
-      const store = await Store.findById(req.params.id);
-      if (!store) {
-        res.status(404).json({ message: 'Store not found' });
+      const product = await Product.findById(req.params.id);
+      if (!product) {
+        res.status(404).json({ message: 'Product not found' });
       } else {
-        res.json(Store);
+        res.json(product);
       }
     } catch (err) {
       next(err);
     }
   },
-
+/*
   create: async (req, res, next) => {
     try {
-      const store = await Store.create(req.body);
+      const customer = await Store.create(req.body);
       res.status(201).json(book);
     } catch (err) {
       next(err);
     }
   },
 
-  /*
 
   update: async (req, res, next) => {
     try {
@@ -63,4 +62,4 @@ const storeController = {
 };
 
 
-module.exports = storeController;
+module.exports = productController;

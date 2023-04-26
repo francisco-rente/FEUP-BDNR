@@ -4,18 +4,51 @@ const config = require('../config');
 const cluster = new couchbase.Cluster(config.dbUrl);
 const bucket = cluster.openBucket(config.bucketName, config.dbPassword);
 
-const storeSchema = {
-  //id???
+
+/*
+{"customer_id":42605767,
+"name":"Abigail Jones",
+"email":"Abigail Jones@gmail.com",
+"password":"5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+"location":{"city":"Sparksside","state":"Arizona","country":"Saint Martin","zip_code":"47574","coordinates":{"latitude":87.856211,"longitude":-115.274201}},
+"phone_number":"975.105.6526x2504",
+"products_reviews_pairs":[{"product_id":"B00MUTIDKI","review_id":"R3EFW2STIYIY0I"}]},
+*/
+
+const customerSchema = {
+  customer_id: { type: "integer", required: true },
   name: { type: String, required: true },
-  location: { type: String, required: false},
-  contact: {type: int, required: false},
-  store_items: {type: array, required: true}
+  email: { type: String, required: false },
+  password: { type: String, required: false },
+  location: {
+    type: "object",
+    properties: {
+      city: { type: String },
+      state: { type: String },
+      country: { type: String },
+      zip_code: { type: String },
+      coordinates: {
+        type: "object",
+        properties: {
+          latitude: { type: Number },
+          longitude: { type: Number }
+        },
+      }
+    },
+  },
+  phone_number: {type: string, required: false},
+  products_reviews_pairs: {
+    type: Array, items: {
+    product_id: {type: String, required: true},
+    review_id: {type: String, required: true}
+  },
+  required: true}
 };
 
-const Store = {
+const Customer = {
   findAll: () => {
     return new Promise((resolve, reject) => {
-      const query = couchbase.N1qlQuery.fromString('SELECT * FROM store');
+      const query = couchbase.N1qlQuery.fromString('SELECT * FROM customer');
       bucket.query(query, (err, result) => {
         if (err) {
           reject(err);
