@@ -5,14 +5,17 @@ const cluster = new couchbase.Cluster(config.dbUrl);
 const bucket = cluster.openBucket(config.bucketName, config.dbPassword);
 
 const bookSchema = {
-  title: { type: String, required: true },
-  author: { type: String, required: true }
+  //id???
+  name: { type: String, required: true },
+  location: { type: String, required: false},
+  contact: {type: int, required: false},
+  store_items: {type: array, required: true}
 };
 
-const Book = {
+const Store = {
   findAll: () => {
     return new Promise((resolve, reject) => {
-      const query = couchbase.N1qlQuery.fromString('SELECT * FROM books');
+      const query = couchbase.N1qlQuery.fromString('SELECT * FROM store');
       bucket.query(query, (err, result) => {
         if (err) {
           reject(err);
@@ -34,7 +37,7 @@ const Book = {
       });
     });
   },
-
+/*
   create: (book) => {
     return new Promise((resolve, reject) => {
       const id = book.title.replace(/\s/g, '-').toLowerCase();
@@ -70,4 +73,6 @@ const Book = {
         }
       });
     });
- 
+  }
+  */
+}

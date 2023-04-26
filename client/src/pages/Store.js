@@ -1,9 +1,11 @@
+import MyNavbar from "../components/MyNavbar";
+
 const Store= () => {
 
     return (
       <>
-  
-        product page
+      <MyNavbar hasSearchBar={false} style={{height:"50px"}}></MyNavbar>
+        store page
       
       </>)
       ;

@@ -1,17 +1,17 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const bookRoutes = require('./routes/book');
+const storeRoutes = require('./routes/store');
 const errorMiddleware = require('./middlewares/error');
 
 // Set up the server
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 // Use body-parser middleware to parse request bodies
 app.use(bodyParser.json());
 
 // Set up the routes
-app.use('/api/books', bookRoutes);
+app.use('/api/store', storeRoutes);
 
 // Use error middleware to handle errors
 app.use(errorMiddleware);
