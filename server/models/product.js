@@ -45,6 +45,7 @@ const Product = {
   },
 
   findById: (id) => {
+    
     return new Promise((resolve, reject) => {
       bucket.get(id, (err, result) => {
         if (err) {
