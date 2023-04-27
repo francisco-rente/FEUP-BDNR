@@ -1,3 +1,2 @@
-etils   
-numpy 
 tensorflow_datasets
+faker
