@@ -62,4 +62,4 @@ const customerController = {
 };
 
 
-module.exports = storeController;
+module.exports = customerController;

@@ -19,6 +19,8 @@ function App() {
       <Route path="/productList" element={<ProductList/>} />
       <Route path="/reviewList" element={<ReviewList/>} />
       <Route path="/customer" element={<Customer/>} />
+      <Route path="/stores" element={<Store/>} />
+      <Route path="*" element={<h1>Not Found</h1>} />
     </Routes>
     </BrowserRouter>
   ); 

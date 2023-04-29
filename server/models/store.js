@@ -1,47 +1,51 @@
 const couchbase = require('couchbase');
 const config = require('../config');
-
-const cluster = new couchbase.Cluster(config.dbUrl);
-const bucket = cluster.openBucket(config.bucketName, config.dbPassword);
+const db = require('../db/database');
+const N1qlQuery = couchbase.N1qlQuery;
 
 const storeSchema = {
-  //id???
-  name: { type: String, required: true },
-  location: { type: String, required: false},
-  contact: {type: int, required: false},
-  store_items: {type: array, required: true}
+    //id???
+    name: { type: String, required: true },
+    location: { type: String, required: false},
+    store_items: {type: Array,  required: true},
+    contact: { type: Number,  required: false}
 };
 
 const Store = {
-  findAll: () => {
-    return new Promise((resolve, reject) => {
-      const query = couchbase.N1qlQuery.fromString('SELECT * FROM store');
-      bucket.query(query, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result);
-        }
-      });
-    });
-  },
+    findAll: () => new Promise((resolve, reject) =>{
+            const scope = db.getScope();   
+            console.log("scope", scope);
+                
+            const collection = scope.collection('stores');
+            console.log("collection", collection);
 
-  findById: (id) => {
-    return new Promise((resolve, reject) => {
-      bucket.get(id, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result.value);
-        }
-      });
-    });
-  },
-/*
+            scope.query( 'SELECT * FROM `stores` LIMIT 10', (err, result) => {
+                if (err) {
+                    console.log("Error in Store.findAll");
+                    reject(err);
+                } else {
+                    console.log("Store.findAll");
+                    resolve(result);
+                }
+            });
+        }),
+
+    findById: (id) => {
+        return new Promise((resolve, reject) => {
+            store_collection.get(id, (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result.value);
+                }
+            });
+        });
+    },
+    /*
   create: (book) => {
     return new Promise((resolve, reject) => {
       const id = book.title.replace(/\s/g, '-').toLowerCase();
-      bucket.insert(id, book, (err, result) => {
+      store_collection.insert(id, book, (err, result) => {
         if (err) {
           reject(err);
         } else {
@@ -53,7 +57,7 @@ const Store = {
 
   update: (id, book) => {
     return new Promise((resolve, reject) => {
-      bucket.replace(id, book, (err, result) => {
+      store_collection.replace(id, book, (err, result) => {
         if (err) {
           reject(err);
         } else {
@@ -65,7 +69,7 @@ const Store = {
 
   delete: (id) => {
     return new Promise((resolve, reject) => {
-      bucket.remove(id, (err, result) => {
+      store_collection.remove(id, (err, result) => {
         if (err) {
           reject(err);
         } else {
@@ -76,3 +80,5 @@ const Store = {
   }
   */
 }
+
+module.exports = Store;

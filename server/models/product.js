@@ -1,14 +1,15 @@
 const couchbase = require('couchbase');
 const config = require('../config');
+const db = require('../db/database');
 
-const cluster = new couchbase.Cluster(config.dbUrl);
-const bucket = cluster.openBucket(config.bucketName, config.dbPassword);
+const bucket = db.bucket;
+
 
 const productSchema = {
   product_id: { type: String, required: true },
   product_title: { type: String, required: true },
   product_category: { type: String },
-  product_parent: { type: Integer },
+  product_parent: { type: Number },
   marketplace: { type: String },
   reviews: {
     type: Array,
@@ -16,10 +17,10 @@ const productSchema = {
       type: Object,
       properties: {
         review_id: { type: String },
-        customer_id: { type: Integer },
-        star_rating: { type: Integer, minimum: 1, maximum: 5 },
-        helpful_votes: { type: Integer, minimum: 0 },
-        total_votes: { type: Integer, minimum: 0 },
+        customer_id: { type: Number },
+        star_rating: { type: Number, minimum: 1, maximum: 5 },
+        helpful_votes: { type: Number, minimum: 0 },
+        total_votes: { type: Number, minimum: 0 },
         vine: { type: String, enum: ["Y", "N"] },
         verified_purchase: { type: String, enum: ["Y", "N"] },
         review_headline: { type: String },

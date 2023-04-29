@@ -1,14 +1,18 @@
 const Store = require('../models/store');
-
+console.log("Store", Store);
 const storeController = {
-  getAll: async (req, res, next) => {
-    try {
-      const stores = await Store.findAll();
-      res.json(stores);
-    } catch (err) {
-      next(err);
-    }
-  },
+    getAll:async (_, res) => {
+        console.log("Store.findAll");
+        let stores = Store.findAll();
+        await stores.then((result) => {
+            res.status(200);
+            res.json(result);
+        }).catch((err) => {
+            res.status(500);
+            res.json({ message: err.message });
+        }); 
+        res.send(); 
+  }, 
 
   getById: async (req, res, next) => {
     try {

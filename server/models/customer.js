@@ -1,9 +1,8 @@
 const couchbase = require('couchbase');
 const config = require('../config');
+const db = require('../db/database');
 
-const cluster = new couchbase.Cluster(config.dbUrl);
-const bucket = cluster.openBucket(config.bucketName, config.dbPassword);
-
+const bucket = db.bucket;
 
 /*
 {"customer_id":42605767,
@@ -36,7 +35,7 @@ const customerSchema = {
       }
     },
   },
-  phone_number: {type: string, required: false},
+  phone_number: {type: String, required: false},
   products_reviews_pairs: {
     type: Array, items: {
     product_id: {type: String, required: true},
