@@ -31,6 +31,7 @@ function Navbar() {
           <Button component={Link} to="/productList" color="inherit">Products</Button>
           <Button component={Link} to="/reviewList" color="inherit">Reviews</Button>
           <Button component={Link} to="/customer" color="inherit">Customers</Button>
+          <Button component={Link} to="/storeList" color="inherit">Stores</Button>
         </Toolbar>
       </AppBar>
     </div>

@@ -2,8 +2,6 @@ const couchbase = require('couchbase');
 const config = require('../config');
 const db = require('../db/database');
 
-const bucket = db.bucket;
-
 
 const productSchema = {
   product_id: { type: String, required: true },
@@ -34,17 +32,17 @@ const productSchema = {
 const Product = {
   findAll: () => {
     return new Promise((resolve, reject) => {
-      const query = couchbase.N1qlQuery.fromString('SELECT * FROM product');
-      bucket.query(query, (err, result) => {
+      const scope = db.getScope();   
+      scope.query( 'SELECT * FROM `products` LIMIT 10', (err, result) => {
         if (err) {
-          reject(err);
+            console.log("Error in Store.findAll");
+            reject(err);
         } else {
-          resolve(result);
+            console.log("Store.findAll");
+            resolve(result);
         }
-      });
-    });
+    })}); 
   },
-
   findById: (id) => {
     
     return new Promise((resolve, reject) => {
@@ -96,3 +94,5 @@ const Product = {
   }
   */
 }
+
+module.exports = Product;

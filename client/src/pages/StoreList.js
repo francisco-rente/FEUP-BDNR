@@ -34,7 +34,7 @@ const StoresList = (props) => {
 
 
 
-const Store= () => {
+const StoreList= () => {
     const [stores, setStores] = useState([]);
 
     useEffect(() => async () => {
@@ -54,4 +54,4 @@ const Store= () => {
         </Fragment>);
 };
 
-export default Store;
+export default StoreList;
