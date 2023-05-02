@@ -30,7 +30,6 @@ app.listen(port, () => {
     // Start the database
     database.startDB((err) => {
         if (err) {
-            console.log(err);
             process.exit(1);
         }
         console.log('Database connected.');

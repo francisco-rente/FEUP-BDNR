@@ -14,7 +14,7 @@ const productController = {
       // TODO: add distance to query
       const query = `SELECT * FROM server.store.products AS product WHERE product.product_id IN (SELECT RAW item.product_id FROM server.store.stores AS s UNNEST s.store_items AS item
           WHERE item.price BETWEEN ${price[0]} AND ${price[1]} AND item.quantity BETWEEN ${quantity[0]} AND ${quantity[1]})
-          LIMIT 10 OFFSET 0
+          LIMIT 10
           `;
 
       console.log("query", query);
@@ -38,15 +38,17 @@ const productController = {
   },
 
   getById: async (req, res, next) => {
-    try {
-      const product = await Product.findById(req.params.id);
-      if (!product) {
-        res.status(404).json({ message: "Product not found" });
-      } else {
-        res.json(product);
-      }
-    } catch (err) {
-      next(err);
+        console.log("params", req.params);
+      try {
+          console.log("params", req.params);
+          Product.findById(req.params.id).then((result) => {      
+              res.status(200).json(result);
+          }).catch(() => {
+              console.log("Error in Product.findById"); 
+              res.status(404).json({ message: 'product not found' });
+          }); 
+      } catch (err) {
+          next(err);
     }
   },
   /*
