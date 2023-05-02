@@ -25,11 +25,11 @@ couchbase-cli collection-manage -c localhost:8091 --username admin --password pa
 couchbase-cli collection-manage -c localhost:8091 --username admin --password password --bucket server --create-collection store.users
 
 # import  /opt/couchbase/var/lib/couchbase/input/stores_with_items.json
-cbimport json -c localhost:8091 -u admin -p password -b server -d file:///opt/couchbase/var/lib/couchbase/input/stores_with_items.json --scope-collection-exp store.stores -f list -g store::stores::%store_id% -t 4
+cbimport json -c localhost:8091 -u admin -p password -b server -d file:///opt/couchbase/var/lib/couchbase/input/stores_with_items.json --scope-collection-exp store.stores -f list -g %store_id% -t 4
 # import datasets/json/products.json /opt/couchbase/var/lib/couchbase/input/products.json
-cbimport json -c localhost:8091 -u admin -p password -b server -d file:///opt/couchbase/var/lib/couchbase/input/products.json -f list --scope-collection-exp store.products -g store::products::%product_id% -t 4
+cbimport json -c localhost:8091 -u admin -p password -b server -d file:///opt/couchbase/var/lib/couchbase/input/products.json -f list --scope-collection-exp store.products -g %product_id% -t 4
 # import datasets/json/users.json /opt/couchbase/var/lib/couchbase/input/users.json
-cbimport json -c localhost:8091 -u admin -p password -b server -d file:///opt/couchbase/var/lib/couchbase/input/users.json -f list --scope-collection-exp store.users -g store::users::%customer_id% -t 4
+cbimport json -c localhost:8091 -u admin -p password -b server -d file:///opt/couchbase/var/lib/couchbase/input/users.json -f list --scope-collection-exp store.users -g %customer_id% -t 4
 
 # create primary index
 cbq -e localhost:8093 -u admin -p password -s "CREATE PRIMARY INDEX ON server.store.stores" -f json
