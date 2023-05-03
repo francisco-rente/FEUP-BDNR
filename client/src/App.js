@@ -7,6 +7,7 @@ import StoreList from "./pages/StoreList";
 import ProductList from "./pages/ProductList";
 import ReviewList from "./pages/ReviewList";
 import Customer from "./pages/Customer";
+import Login from "./pages/Login";
 
 function App() {
 
@@ -15,6 +16,7 @@ function App() {
     <Routes>
       <Route path="/" element={<ProductList />} />
       <Route path="/product/:id" element={<Product />} />
+      <Route path="/login" element={<Login />} />
      {/*<Route path="/store:id" element={<Ind/>} */}
       <Route path="/productList" element={<ProductList/>} />
       <Route path="/reviewList" element={<ReviewList/>} />
