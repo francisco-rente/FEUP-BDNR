@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { TextField, Button } from "@material-ui/core";
+import Centered from "../components/Centered";
 
 function Form() {
   const [userId, setUserId] = useState("");
@@ -14,46 +15,28 @@ function Form() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <TextField
-        label="Enter some text"
-        value={userId}
-        onChange={handleTextChange}
-        variant="outlined"
+    <>
+      <Centered
+        title="Inicio de Sessão"
+        cardProps={{ maxWidth: "15em" }}
+        content={
+          <>
+            <form onSubmit={handleSubmit}>
+              <TextField
+                label="Enter some text"
+                value={userId}
+                onChange={handleTextChange}
+                variant="outlined"
+              />
+              <Button variant="contained" color="primary" type="submit" style={{marginTop: 10}}>
+                Submit
+              </Button>
+            </form>
+          </>
+        }
       />
-      <Button variant="contained" color="primary" type="submit">
-        Submit
-      </Button>
-    </form>
+    </>
   );
 }
 
 export default Form;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

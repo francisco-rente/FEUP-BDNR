@@ -8,6 +8,7 @@ import ProductList from "./pages/ProductList";
 import ReviewList from "./pages/ReviewList";
 import Customer from "./pages/Customer";
 import Login from "./pages/Login";
+import Profile from "./pages/Profile";
 
 function App() {
 
@@ -23,6 +24,7 @@ function App() {
       <Route path="/customer" element={<Customer/>} />
       <Route path="/storeList" element={<StoreList/>} />
       <Route path="*" element={<h1>Not Found</h1>} />
+      <Route path="/profile" element={<Profile/>} />
     </Routes>
     </BrowserRouter>
   ); 
