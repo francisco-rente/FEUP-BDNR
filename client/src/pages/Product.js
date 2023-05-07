@@ -90,12 +90,40 @@ const StoreList = ({stores}) => {
 };
 
 
-const CreateReviewDialog = ({open, onClose}) => {
-    
+const CreateReviewDialog = ({open, onClose, id}) => {
+    const [review_headline, setReviewHeadline] = useState("");
+    const [review_body, setReviewBody] = useState("");
+    const [star_rating, setStarRating] = useState(0);
+
+
     function handleSubmit(event) {
         event.preventDefault();
-        const data = new FormData(event.target);
+        const query = "http://localhost:3001/api/product/" + id + "/addReview";
+        const data = {
+            review_headline: review_headline,
+            review_body: review_body,
+            star_rating: star_rating,
+            user_id: localStorage.getItem("userId")
+        };
+
         console.log("data", data);
+        fetch(query, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        }).then((response) => {
+            if (response.status === 200) {
+                console.log("Review created successfully");
+            } else {
+                console.log("Failed to create review");
+            }
+        });
+        // eliminate state contents
+        setReviewHeadline("");
+        setReviewBody("");
+        setStarRating(0);
         onClose();
     }
 
@@ -116,6 +144,7 @@ const CreateReviewDialog = ({open, onClose}) => {
                     type="text"
                     name="review_headline"
                     fullWidth
+                    onChange={(e) => setReviewHeadline(e.target.value)}
                 />
                 <TextareaAutosize
                     autoFocus
@@ -128,6 +157,7 @@ const CreateReviewDialog = ({open, onClose}) => {
                     style={{ width: 300, height: 100 }}
                     name="review_body"
                     fullWidth
+                    onChange={(e) => setReviewBody(e.target.value)}
                 />
                 <TextField
                     autoFocus
@@ -138,6 +168,7 @@ const CreateReviewDialog = ({open, onClose}) => {
                     name="star_rating"
                     fullWidth
                     inputProps={{ min: "1", max: "5", step: "1" }}
+                    onChange={(e) => setStarRating(e.target.value)}
                 />
             </DialogContent>
             <DialogActions>
@@ -159,6 +190,7 @@ const Product = () => {
     const [product, setProduct] = useState({});
     const [stores, setStores] = useState([]);
     const [openCreateReviewDialog, setOpenCreateReviewDialog] = useState(false);
+
     useEffect( () => async () => {
         const query = "http://localhost:3001/api/product/" + id; 
         await fetch(query).then((res) => res.json())
@@ -179,7 +211,6 @@ const Product = () => {
     }
 
     const handleClose = (action) => {
-        
         setOpenCreateReviewDialog(false);
     }
 
@@ -194,11 +225,10 @@ const Product = () => {
                 <Grid item xs={6} sm={6}>
                     <ProductInfoCard product={product} />
                 </Grid>
-                <Grid item xs={6} sm={6}>
-                    <Button variant="contained" color="primary" onClick={handdleClickOpen}>
+                <Grid item xs={6} sm={6}> <Button variant="contained" color="primary" onClick={handdleClickOpen}>
                         Add Review
                     </Button>
-                    <CreateReviewDialog open={openCreateReviewDialog} onClose={handleClose} />
+                    <CreateReviewDialog open={openCreateReviewDialog} onClose={handleClose} product_id={id} />
                     <Typography variant="h6">Reviews:</Typography>
                    <ProductReviewList reviews={product.reviews} />
                 </Grid>
