@@ -14,7 +14,7 @@ echo "Cluster created" # Create the user
 couchbase-cli user-manage -c localhost:8091 --username admin --password password --set --rbac-username admin --rbac-password password --rbac-name "Administrator" --roles admin --auth-domain local
 
 echo "User created"
-
+2
 # Create the bucket-type
 couchbase-cli bucket-create -c localhost:8091 --username admin --password password --bucket server --bucket-type couchbase --bucket-ramsize 100 --bucket-replica 1 --enable-flush 1
 

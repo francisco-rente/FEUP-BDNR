@@ -28,7 +28,7 @@ const ProductList = () => {
 
   useEffect(
     () => async () => {
-      const query = "http://localhost:3001/api/product"; 
+      const query = "http://localhost:3001/api/product";
       const params = new URLSearchParams({
         q: "product_title:fts",
         product_distance: distanceInterval,
@@ -79,17 +79,29 @@ const ProductList = () => {
 
         <List sx={style} component="nav" aria-label="mailbox folders">
           <ListItem button>
-            <FilterSlider units="km" limit={100} step={50}
+            <FilterSlider
+              units="km"
+              limit={100}
+              step={50}
               onChange={(e) => setDistanceInterval(e.target.value)}
             />
           </ListItem>
           <Divider />
           <ListItem button divider>
-            <FilterSlider onChange={(e) => setQuantityInterval(e.target.value)} units="u." limit={100} step={25}  />
+            <FilterSlider
+              onChange={(e) => setQuantityInterval(e.target.value)}
+              units="u."
+              limit={100}
+              step={25}
+            />
           </ListItem>
           <ListItem button>
-            <FilterSlider units="€"
-            onChange={(_, newValue) => setPriceInterval(newValue)} limit={500} step={100}/>
+            <FilterSlider
+              units="€"
+              onChange={(_, newValue) => setPriceInterval(newValue)}
+              limit={500}
+              step={100}
+            />
           </ListItem>
           <Divider light />
         </List>
