@@ -44,6 +44,11 @@ pair_stores: generate_stores transform_products
 	python3 pair_products_with_stores.py -f $(PRODUCTS) -n 30
 	@echo "==> Pairing stores done"
 
+add_names : transform_products
+	@echo "==> Adding names"
+	python3 user_names.py
+	@echo "==> Adding names done"
+
 all : pair_stores generate_users
 
 clean:
