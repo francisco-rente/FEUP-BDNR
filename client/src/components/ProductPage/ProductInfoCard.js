@@ -12,10 +12,11 @@ const useStyles = makeStyles((theme) => ({
         flexDirection: 'column',
         height: "80%",
         width: "100%",
+        maxWidth: 500,
         justifyContent: "space-between",
         alignItems: "center",
-        padding: "5px",
-        margin: "10px",
+        padding: "2px",
+        margin: "5px",
         boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.75)",
     }
 }));

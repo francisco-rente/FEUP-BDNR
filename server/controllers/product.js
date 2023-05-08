@@ -36,7 +36,6 @@ const productController = {
       next(err);
     }
   },
-
   getById: async (req, res, next) => {
       console.log("params", req.params);
       try {
@@ -58,6 +57,37 @@ const productController = {
           next(err);
     }
   },
+    getStoresByProductId: async (req, res, next) => {
+        const productId = req.params.id;
+        console.log("Get stores by product id", productId);
+        try {
+            const query = "SELECT s.store_id AS store_id, s.name AS store_name, s.location AS store_location, s.contact AS store_contact \
+              FROM server.store.stores AS s \
+              WHERE ANY item IN store_items SATISFIES item.product_id = '" + productId + "' END";
+            console.log("query", query);
+            const scope = db.getScope();
+            await scope.query(query, (err, result) => err ? err : result)
+                .then((result) => {
+                res.status(200).json(result);
+            }
+            ).catch((err) => {
+                res.status(404).json({ message: 'product not found' });
+            }
+            );
+        }
+        catch (err) {
+            next(err);
+        }
+    }, 
+    addReview: async (req, res, next) => {
+        const { review_headline, review_body, star_rating, user_id } = req.body;
+        const productId = req.params.id;
+        console.log("Add review", productId);
+        console.log(req.body);
+        // add verifications
+        // insert into array of reviews in product
+    }
+
   /*
   create: async (req, res, next) => {
     try {

@@ -49,7 +49,10 @@ const Product = () => {
     useEffect( () => async () => {
         const query = "http://localhost:3001/api/product/" + id + "/stores";
         await fetch(query).then((res) => res.json())
-            .then((data) => setStores(data.rows))
+            .then((data) => {
+                console.log("STORES", data.rows);
+                setStores(data.rows);
+            })
             .catch((err) => console.log("err", err));
     }, []);
     
@@ -69,7 +72,9 @@ const Product = () => {
                                 <ProductInfoCard product={product} />
                             </Grid>
                             <Grid item xs={6} sm={6} md={7} >
-                                <Typography variant="h6">Stores:</Typography>
+                                <Typography variant="h6"
+                                    style={{paddingBottom: "10px", paddingTop: "10px", fontWeight: "bold"}}
+                                >Available at: </Typography>
                                 <List component="nav" aria-label="main mailbox folders">
                                     <StoreList stores={stores} />
                                 </List>
