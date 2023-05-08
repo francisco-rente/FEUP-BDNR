@@ -67,7 +67,7 @@ export const ProductInfoCard = ( props ) => {
                             {stars(avg_rating)}
                         </Typography>
                         <Typography variant="body2" component="p">
-                            Avg Price: {avg_price}€
+                            Avg Price: ${Number(avg_price).toFixed(2)}
                         </Typography>
                     </Grid>
                 </Grid>
