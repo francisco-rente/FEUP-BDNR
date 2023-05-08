@@ -10,26 +10,29 @@ import {
     TextField,
 } from "@material-ui/core";
 
+import Rating from '@mui/material/Rating';
+import Stack from '@mui/material/Stack';
 
-
-export const CreateReviewDialog = ({ open, onClose, id }) => {
+export const CreateReviewDialog = ({ open, onClose, id, setRefreshReviews }) => {
     const [review_headline, setReviewHeadline] = useState("");
     const [review_body, setReviewBody] = useState("");
     const [star_rating, setStarRating] = useState(0);
 
 
-    function handleSubmit(event) {
+    async function handleSubmit(event) {
         event.preventDefault();
         const query = "http://localhost:3001/api/product/" + id + "/addReview";
+        const userId = localStorage.getItem("userId");
+        if(userId === null) return;
+
         const data = {
             review_headline: review_headline,
             review_body: review_body,
             star_rating: star_rating,
-            user_id: localStorage.getItem("userId")
+            user_id: userId,
         };
 
-        console.log("data", data);
-        fetch(query, {
+        await fetch(query, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -37,6 +40,7 @@ export const CreateReviewDialog = ({ open, onClose, id }) => {
             body: JSON.stringify(data),
         }).then((response) => {
             if (response.status === 200) {
+                setRefreshReviews(true);
                 console.log("Review created successfully");
             } else {
                 console.log("Failed to create review");
@@ -55,11 +59,14 @@ export const CreateReviewDialog = ({ open, onClose, id }) => {
             <form onSubmit={handleSubmit} noValidate>
                 <DialogTitle id="form-dialog-title">Create Review</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
-                        To create a review, please enter the following information here. 
-                    </DialogContentText>
+                    <Stack spacing={2}
+                        direction="column"
+                        justifyContent="center"
+                        alignItems="center"
+                    >
                     <TextField
                         autoFocus
+                        value={review_headline}
                         margin="dense"
                         id="review_headline"
                         label="Review Headline"
@@ -70,34 +77,35 @@ export const CreateReviewDialog = ({ open, onClose, id }) => {
                     />
                     <TextareaAutosize
                         autoFocus
+                        value={review_body}
+                        variant="outlined"
                         margin="dense"
                         mt={2}
                         id="review_body"
                         label="Review Body"
                         type="text"
-                        placeholder="Empty"
+                        placeholder="Write your review here"
                         style={{ width: 300, height: 100 }}
                         name="review_body"
                         fullWidth
+                        minRows={3}
+                        minColumns={100}
                         onChange={(e) => setReviewBody(e.target.value)}
                     />
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="star_rating"
-                        label="Star Rating"
-                        type="number"
-                        name="star_rating"
-                        fullWidth
-                        inputProps={{ min: "1", max: "5", step: "1" }}
-                        onChange={(e) => setStarRating(e.target.value)}
+                    <Rating
+                        name="simple-controlled"
+                        value={star_rating}
+                            onChange={(event, newValue) => {
+                            setStarRating(newValue);
+                        }}
                     />
+                    </Stack>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={onClose} color="primary">
                         Cancel
                     </Button>
-                    <Button  color="primary" type="submit">
+                    <Button color="primary" type="submit">
                         Create
                     </Button>
                 </DialogActions>

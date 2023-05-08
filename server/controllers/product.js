@@ -3,6 +3,8 @@ const Product = require("../models/product");
 
 const db = require("../db/database");
 
+
+
 const productController = {
   getAll: async (req, res, next) => {
     try {
@@ -44,7 +46,7 @@ const productController = {
               res.status(404).json({ message: 'product not found' });
          });  
         
-        // TODO:: Again with UNNEST, what's the difference from ANY? 
+        // TODO:: Again with UNNEST, what's the difference from ANY or a simple JOIN? 
         const query = `SELECT AVG(item.price) AS avg_price FROM server.store.stores AS s UNNEST s.store_items AS item WHERE item.product_id = "${req.params.id}"`;
         const avg_price = await db.getScope().query(query, (err, result) => err ? err : result);
         if (avg_price.error) res.status(404).json({ message: 'cannot calculate avg price' });
@@ -84,8 +86,24 @@ const productController = {
         const productId = req.params.id;
         console.log("Add review", productId);
         console.log(req.body);
+
+    //    {
+    //  "review_id": "R2E9SJFMF0STB5",
+    //  "customer_id": 5033009,
+    //  "star_rating": 5,
+    //  "helpful_votes": 0,
+    //  "total_votes": 0,
+    //  "vine": "N",
+    //  "verified_purchase": "Y",
+    //  "review_headline": "Five Stars",
+    //  "review_body": "Got my movie and was very happy with the condition",
+    //  "review_date": "2015-08-31",
+    //  "customer_name": "Sheri Smith"
+    //}
+
         // add verifications
         // insert into array of reviews in product
+        res.status(200).json({ message: 'review added' });
     }
 
   /*

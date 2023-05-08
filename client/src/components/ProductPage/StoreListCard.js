@@ -20,9 +20,6 @@ export const StoreListCard = ({store, navigate}) => {
     const {city, country} = store_location;
     const {phone_number, email} = store_contact;  
     
-    console.log(store);
-
-
     const goToStore = () => {
         navigate("/store/" + store_id);
     }

@@ -35,6 +35,13 @@ const Product = () => {
     const [product, setProduct] = useState({});
     const [stores, setStores] = useState([]);
     const [openCreateReviewDialog, setOpenCreateReviewDialog] = useState(false);
+    const [refreshReviews, setRefreshReviews] = useState(false);
+
+    const refreshReviewsCallback = (value) => {
+        // For now it works, but is it supposed to be like this? Does the value get set to false after this?
+        // Also weird because it refreshes products, should we simply add it when the req is successful?
+        setRefreshReviews(value);
+    }
 
     const handleClickOpen = () => setOpenCreateReviewDialog(true); 
     const handleClose = () => setOpenCreateReviewDialog(false);
@@ -44,13 +51,12 @@ const Product = () => {
         await fetch(query).then((res) => res.json())
             .then((data) => setProduct(data.content))
             .catch((err) => console.log("err", err)); 
-    }, []);
+    }, [refreshReviews]);
 
     useEffect( () => async () => {
         const query = "http://localhost:3001/api/product/" + id + "/stores";
         await fetch(query).then((res) => res.json())
             .then((data) => {
-                console.log("STORES", data.rows);
                 setStores(data.rows);
             })
             .catch((err) => console.log("err", err));
@@ -84,7 +90,7 @@ const Product = () => {
 
                     {/*Right side*/}
                     <Grid item xs={6} sm={6} md={6} className={classes.storesSection}>
-                        <CreateReviewDialog open={openCreateReviewDialog} onClose={handleClose} product_id={id} />
+                        <CreateReviewDialog open={openCreateReviewDialog} onClose={handleClose} setRefreshReviews={refreshReviewsCallback} product_id={id} />
                         <Typography   variant="h6" align="center" style={
                             {paddingBottom: "10px", paddingTop: "10px", fontWeight: "bold", marginBottom: "10px"}
                         }>Reviews:</Typography>
