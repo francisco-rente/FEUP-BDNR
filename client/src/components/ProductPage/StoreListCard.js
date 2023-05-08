@@ -1,7 +1,8 @@
 import React from "react";
-import { ListItem, ListItemText } from "@material-ui/core";
+import { ListItem, ListItemText }from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
+import ListItemButton from '@mui/material/ListItemButton';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -28,7 +29,14 @@ export const StoreListCard = ({store, navigate}) => {
 
 
     return (
-        <ListItem alignItems="flex-start" divider={true} justifyContent="center" onClick={() => goToStore()}>
+        <ListItem 
+            alignItems="flex-start" 
+            divider={true} 
+            justifyContent="center" 
+            onClick={() => goToStore()}
+            disablePadding
+    >
+            <ListItemButton role={undefined} onClick={() => goToStore()} dense>
             <ListItemText 
                 primary={
                     <React.Fragment>
@@ -80,7 +88,7 @@ export const StoreListCard = ({store, navigate}) => {
                 }
             />
 
-
+            </ListItemButton>
         </ListItem>
     
 
