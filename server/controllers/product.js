@@ -38,15 +38,22 @@ const productController = {
   },
 
   getById: async (req, res, next) => {
-        console.log("params", req.params);
+      console.log("params", req.params);
       try {
           console.log("params", req.params);
-          Product.findById(req.params.id).then((result) => {      
-              res.status(200).json(result);
-          }).catch(() => {
-              console.log("Error in Product.findById"); 
+          const product = await Product.findById(req.params.id).then((result) => result).catch(() => {
               res.status(404).json({ message: 'product not found' });
-          }); 
+         });  
+        
+        // TODO:: Again with UNNEST, what's the difference from ANY? 
+        const query = `SELECT AVG(item.price) AS avg_price FROM server.store.stores AS s UNNEST s.store_items AS item WHERE item.product_id = "${req.params.id}"`;
+        const avg_price = await db.getScope().query(query, (err, result) => err ? err : result);
+        if (avg_price.error) res.status(404).json({ message: 'cannot calculate avg price' });
+        
+        product.content.avg_price = avg_price.rows[0].avg_price ?? "N/A";
+
+        product.content.avg_rating = 3.5;
+        res.status(200).json(product);
       } catch (err) {
           next(err);
     }

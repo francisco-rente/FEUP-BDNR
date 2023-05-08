@@ -85,7 +85,7 @@ const Product = () => {
                         }>Reviews:</Typography>
                         <Divider variant="middle" />
                         <ProductReviewList reviews={product.reviews} /> 
-                        <Box align="right" justifyContent={"center"} style={{marginTop: "29px"}}>
+                        <Box align="" justifyContent={"center"} style={{marginTop: "29px"}}>
                             <Button variant="contained" color="primary" onClick={handleClickOpen} align="center">
                                 Add Review
                             </Button>

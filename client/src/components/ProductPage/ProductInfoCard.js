@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
 export const ProductInfoCard = ( props ) => {
     
 
-    const { product_title, product_category, marketplace } = props.product;
+    const { product_title, product_category, marketplace, avg_rating, avg_price} = props.product;
     return (
         <Card variant="outlined" className={useStyles().root} >
 
@@ -52,10 +52,10 @@ export const ProductInfoCard = ( props ) => {
                     </Grid>
                     <Grid item xs={6} sm={6} md={6}>
                         <Typography variant="body2" component="p">
-                            {stars(4)}
+                            {stars(avg_rating)}
                         </Typography>
                         <Typography variant="body2" component="p">
-                            Avg. Price: $5.00
+                            Avg Price: {avg_price}€
                         </Typography>
                     </Grid>
                 </Grid>
