@@ -1,4 +1,4 @@
-const Customer = require("../models/product");
+const Customer = require("../models/customer");
 const Product = require("../models/product");
 
 const db = require("../db/database");
@@ -82,29 +82,100 @@ const productController = {
         }
     }, 
     addReview: async (req, res, next) => {
+        console.log("params", req.body);
         const { review_headline, review_body, star_rating, user_id } = req.body;
         const productId = req.params.id;
         console.log("Add review", productId);
         console.log(req.body);
 
-    //    {
-    //  "review_id": "R2E9SJFMF0STB5",
-    //  "customer_id": 5033009,
-    //  "star_rating": 5,
-    //  "helpful_votes": 0,
-    //  "total_votes": 0,
-    //  "vine": "N",
-    //  "verified_purchase": "Y",
-    //  "review_headline": "Five Stars",
-    //  "review_body": "Got my movie and was very happy with the condition",
-    //  "review_date": "2015-08-31",
-    //  "customer_name": "Sheri Smith"
-    //}
 
-        // add verifications
-        // insert into array of reviews in product
-        res.status(200).json({ message: 'review added' });
-    }
+
+        // TODO: Super shady fix (specially considering the Listing page), look into alternatives
+        // https://docs.couchbase.com/php-sdk/current/concept-docs/documents.html#counters
+        // https://github.com/twitter-archive/snowflake
+        // Maybe they could have the same, since we're only adding a few and no routing is done by the id
+
+        function generateId() {
+            const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let id = '';
+            for (let i = 0; i < 14; i++) {
+                const randomIndex = Math.floor(Math.random() * characters.length);
+                id += characters.charAt(randomIndex);
+            }
+            return id;
+        }
+        const new_review_id = generateId();
+
+        const user = await Customer.findById(user_id).then((result) => result.content.name).catch(() => {
+            res.status(404).json({ message: 'user not found' });});
+    
+
+        const date = new Date();
+        const new_review_date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+        console.log("user", user);
+
+        const new_review = {
+            review_id: new_review_id, 
+            customer_id: user_id,
+            star_rating: parseInt(star_rating),
+            helpful_votes: 0,
+            total_votes: 0,
+            vine: "N",
+            verified_purchase: "Y",
+            review_headline: review_headline,
+            review_body: review_body,
+            review_date: new_review_date,
+            customer_name: user
+        }
+        console.log("new_review", new_review);
+        console.log("new_review", JSON.stringify(new_review));
+        console.log("productId", productId);
+
+        const user_review_pair = {
+            product_id: productId,
+            review_id: new_review_id
+        }; 
+        
+
+        await db.getBucket().transaction().run(async (ctx) => {
+            await ctx.upsert(`user::${user_id}`, {
+                reviews: [user_review_pair]
+            });
+            await ctx.upsert(`product::${productId}`, {
+                reviews: [new_review]
+            });
+        }).catch((err) => {
+            console.log("Error in addReview", err);
+            res.status(404).json({ message: 'product not found' });
+        });
+
+
+
+      //  // TODO: check if easier is possible
+      //  const update_user_query = "UPDATE server.store.users AS c SET c.reviews = ARRAY_APPEND(c.reviews, " + JSON.stringify(user_review_pair) + ") WHERE c.customer_id = '" + user_id + "';";
+      //  const query = "UPDATE server.store.products AS p SET p.reviews = ARRAY_APPEND(p.reviews, " + JSON.stringify(new_review) + ") WHERE p.product_id = '" + parseInt(productId) + "';";
+      //  
+      //  // merge both into a single transaction
+      //  // ele não gosta disto "SET TRANSACTION ISOLATION LEVEL READ COMMITTED;\n" e "SAVEPOINT sv1", mas era fixe ter
+      //  const transaction = `BEGIN WORK; ${update_user_query} ${query} COMMIT WORK;`;
+
+      //  console.log("transaction", transaction);
+      //  const scope = db.getScope();
+      //  const insertReview = await new Promise((resolve, reject) => {
+      //      scope.query(transaction, (err, result) => err ? err : result).
+      //          then((result) => {
+      //              console.log("result", result);
+      //              resolve(result);
+      //          }).catch((err) => {
+      //              console.log("err", err);
+      //              reject(err);
+      //          });
+      //  })
+
+        insertReview.error ?  
+            res.status(404).json({ message: 'product not found' }) 
+            : res.status(200).json({ message: 'review added' });
+    },
 
   /*
   create: async (req, res, next) => {
@@ -144,5 +215,6 @@ const productController = {
   }
   */
 };
+
 
 module.exports = productController;

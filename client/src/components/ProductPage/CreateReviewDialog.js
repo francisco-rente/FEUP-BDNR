@@ -13,15 +13,15 @@ import {
 import Rating from '@mui/material/Rating';
 import Stack from '@mui/material/Stack';
 
-export const CreateReviewDialog = ({ open, onClose, id, setRefreshReviews }) => {
+export const CreateReviewDialog = ({ open, onClose, setRefreshReviews, product_id }) => {
     const [review_headline, setReviewHeadline] = useState("");
     const [review_body, setReviewBody] = useState("");
     const [star_rating, setStarRating] = useState(0);
 
-
+    
     async function handleSubmit(event) {
         event.preventDefault();
-        const query = "http://localhost:3001/api/product/" + id + "/addReview";
+        const query = "http://localhost:3001/api/product/" + product_id + "/addReview";
         const userId = localStorage.getItem("userId");
         if(userId === null) return;
 
@@ -44,6 +44,9 @@ export const CreateReviewDialog = ({ open, onClose, id, setRefreshReviews }) => 
                 console.log("Review created successfully");
             } else {
                 console.log("Failed to create review");
+                setReviewBody("");
+                setReviewHeadline("");
+                setStarRating(0);
             }
         });
         // eliminate state contents
