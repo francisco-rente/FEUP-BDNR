@@ -8,6 +8,9 @@ router.get('/', customerController.getAll);
 // GET /api/customer/:id
 router.get('/:id', customerController.getById);
 
+// POST /api/customer/login
+router.post('/login', customerController.login);
+
 // POST /api/store
 //router.post('/', storeController.create);
 

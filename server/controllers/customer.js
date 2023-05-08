@@ -1,5 +1,9 @@
 const Customer = require('../models/customer');
 
+const db = require("../db/database");
+
+
+
 const customerController = {
   getAll: async (req, res, next) => {
     try {
@@ -22,6 +26,19 @@ const customerController = {
       next(err);
     }
   },
+
+
+  login: async (req, res, next) => {
+    try {
+        const userId = req.body.userId;
+        const customer = await Customer.findById(userId);
+        if (!customer)  res.status(404).json({ message: 'Customer not found' });
+        res.json(customer);
+    }
+    catch (err) {
+        next(err);
+    }
+  }
 /*
   create: async (req, res, next) => {
     try {

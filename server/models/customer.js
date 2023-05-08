@@ -4,15 +4,6 @@ const db = require('../db/database');
 
 const bucket = db.bucket;
 
-/*
-{"customer_id":42605767,
-"name":"Abigail Jones",
-"email":"Abigail Jones@gmail.com",
-"password":"5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
-"location":{"city":"Sparksside","state":"Arizona","country":"Saint Martin","zip_code":"47574","coordinates":{"latitude":87.856211,"longitude":-115.274201}},
-"phone_number":"975.105.6526x2504",
-"products_reviews_pairs":[{"product_id":"B00MUTIDKI","review_id":"R3EFW2STIYIY0I"}]},
-*/
 
 const customerSchema = {
   customer_id: { type: "integer", required: true },
@@ -44,6 +35,7 @@ const customerSchema = {
   required: true}
 };
 
+
 const Customer = {
   findAll: () => {
     return new Promise((resolve, reject) => {
@@ -58,17 +50,12 @@ const Customer = {
     });
   },
 
-  findById: (id) => {
-    return new Promise((resolve, reject) => {
-      bucket.get(id, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result.value);
+    findById: (id) => {
+        return new Promise((resolve, reject) => {
+            const users = db.getCollection("users");
+            users.get(id, (err, result) => err ? reject(err) : resolve(result));
         }
-      });
-    });
-  },
+    )},
 /*
   create: (book) => {
     return new Promise((resolve, reject) => {
@@ -108,3 +95,5 @@ const Customer = {
   }
   */
 }
+
+module.exports = Customer;
