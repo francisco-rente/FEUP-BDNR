@@ -4,8 +4,19 @@ import StarIcon from '@material-ui/icons/Star';
 import { makeStyles } from '@material-ui/core/styles';
 import videoPng from "../../assets/videotape.png";
 import Grid from "@material-ui/core/Grid";
+import softwarePng from "../../assets/software.png";
+import toolPng from "../../assets/tool.jpg";
+import notFoundPng from "../../assets/notfound.jpg";
 
 const stars = (star_rating) => Array.from({length: star_rating}, () => <span><StarIcon style={{color: "#FFD700"}}/></span>);
+
+const image = {
+    "Video": videoPng,
+    "Software": softwarePng,
+    "Tool": toolPng,
+};
+
+
 const useStyles = makeStyles((theme) => ({
     root: {
         display: 'flex',
@@ -33,7 +44,7 @@ export const ProductInfoCard = ( props ) => {
             <CardMedia
                 component="img"
                 alt="Product Image"
-                image={videoPng}
+                image={image[product_category] || notFoundPng}
                 title="Product Image"
             />
             <CardHeader
