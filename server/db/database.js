@@ -31,6 +31,7 @@ module.exports = {
         console.log("Collections: ");
         console.log(info2);
     },
+    getCluster: () => _cluster,
     getBucket: () => _bucket,
     getScope: () =>  _bucket.scope(config.scopeName) ?? null,  
     getCollection: (collectionName) => {

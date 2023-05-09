@@ -56,10 +56,17 @@ export const CreateReviewDialog = ({ open, onClose, setRefreshReviews, product_i
         onClose();
     }
 
+    const handleClose = () => {
+        setReviewHeadline("");
+        setReviewBody("");
+        setStarRating(0);
+        onClose();
+    }
+
 
     return (
         <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title">
-            <form onSubmit={handleSubmit} noValidate>
+            <form onSubmit={handleSubmit} noValidate onClose={handleClose}>
                 <DialogTitle id="form-dialog-title">Create Review</DialogTitle>
                 <DialogContent>
                     <Stack spacing={2}
@@ -105,7 +112,7 @@ export const CreateReviewDialog = ({ open, onClose, setRefreshReviews, product_i
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={onClose} color="primary">
+                    <Button onClick={handleClose} color="primary">
                         Cancel
                     </Button>
                     <Button color="primary" type="submit">

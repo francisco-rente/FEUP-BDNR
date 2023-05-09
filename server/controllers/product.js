@@ -82,14 +82,9 @@ const productController = {
         }
     }, 
     addReview: async (req, res, next) => {
-        console.log("params", req.body);
         const { review_headline, review_body, star_rating, user_id } = req.body;
         const productId = req.params.id;
-        console.log("Add review", productId);
-        console.log(req.body);
-
-
-
+        
         // TODO: Super shady fix (specially considering the Listing page), look into alternatives
         // https://docs.couchbase.com/php-sdk/current/concept-docs/documents.html#counters
         // https://github.com/twitter-archive/snowflake
@@ -112,8 +107,6 @@ const productController = {
 
         const date = new Date();
         const new_review_date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
-        console.log("user", user);
-
         const new_review = {
             review_id: new_review_id, 
             customer_id: user_id,
@@ -127,31 +120,69 @@ const productController = {
             review_date: new_review_date,
             customer_name: user
         }
-        console.log("new_review", new_review);
-        console.log("new_review", JSON.stringify(new_review));
-        console.log("productId", productId);
+
 
         const user_review_pair = {
             product_id: productId,
             review_id: new_review_id
         }; 
         
+        console.log(db.getCluster());
 
-        await db.getBucket().transaction().run(async (ctx) => {
-            await ctx.upsert(`user::${user_id}`, {
-                reviews: [user_review_pair]
-            });
-            await ctx.upsert(`product::${productId}`, {
-                reviews: [new_review]
-            });
-        }).catch((err) => {
+        const user_collection = db.getCollection("users");
+        const product_collection = db.getCollection("products");
+
+        await db.getCluster().transactions().run(async (ctx) => {
+            
+            /* TODO: Check this and see if transaction level is necessary
+             * When using a single node cluster (for example, during development),
+             * the default number of replicas for a newly created bucket is 1. 
+             * If left at this default, all key-value writes performed with durability 
+             * will fail with a DurabilityImpossibleError*/
+            
+            const user = await ctx.get(user_collection, user_id);
+
+            if (!user) throw new Error("User not found");
+            
+            console.log("user", user.content.products_reviews_pairs); 
+            console.log("productId", productId);
+            // check if user already reviewed the product
+            const already_reviewed = user.content.products_reviews_pairs.some(
+                (pair) => pair.product_id === productId);
+            
+            console.log("already_reviewed", already_reviewed);
+            if (already_reviewed) throw new Error("User already reviewed the product");
+
+            const new_user = {
+                ...user.content,
+                products_reviews_pairs : user.content.products_reviews_pairs.concat(
+                [{ product_id: productId, review_id: new_review_id }])
+            }
+            console.log("new_user", new_user);
+            await ctx.replace(user, new_user);
+
+
+            const product = await ctx.get(product_collection, productId);
+
+            if (!product) throw new Error("Product not found");
+
+            const new_product = {
+                ...product.content,
+                reviews: product.content.reviews.concat([new_review])
+            }
+            await ctx.replace(product, new_product);
+        }).then((result) => {
+            res.status(200).json({ message: 'review added' });    
+            console.log("Transaction result", result);
+        })
+            .catch((err) => {
             console.log("Error in addReview", err);
             res.status(404).json({ message: 'product not found' });
         });
 
+        // TODO: compare alternatives
 
-
-      //  // TODO: check if easier is possible
+      //  // TODO: fix it and check if easier is possible
       //  const update_user_query = "UPDATE server.store.users AS c SET c.reviews = ARRAY_APPEND(c.reviews, " + JSON.stringify(user_review_pair) + ") WHERE c.customer_id = '" + user_id + "';";
       //  const query = "UPDATE server.store.products AS p SET p.reviews = ARRAY_APPEND(p.reviews, " + JSON.stringify(new_review) + ") WHERE p.product_id = '" + parseInt(productId) + "';";
       //  
@@ -171,10 +202,6 @@ const productController = {
       //              reject(err);
       //          });
       //  })
-
-        insertReview.error ?  
-            res.status(404).json({ message: 'product not found' }) 
-            : res.status(200).json({ message: 'review added' });
     },
 
   /*
