@@ -3,7 +3,7 @@ const Product = require("../models/product");
 
 const db = require("../db/database");
 
-
+const NUM_PRODUCTS_PER_PAGE = 10;
 
 const productController = {
   getAll: async (req, res, next) => {
@@ -12,13 +12,19 @@ const productController = {
       const distance = req.query.product_distance.split(",").map((x) => +x);
       const quantity = req.query.product_quantity.split(",").map((x) => +x);
       const price = req.query.product_price.split(",").map((x) => +x);
+      const page = req.query.page;
 
+      const offset = (page - 1) * NUM_PRODUCTS_PER_PAGE;
+              
       // TODO: add distance to query
       const query = `SELECT * FROM server.store.products AS product WHERE product.product_id IN (SELECT RAW item.product_id FROM server.store.stores AS s UNNEST s.store_items AS item
           WHERE item.price BETWEEN ${price[0]} AND ${price[1]} AND item.quantity BETWEEN ${quantity[0]} AND ${quantity[1]})
-          LIMIT 10
+          LIMIT ${NUM_PRODUCTS_PER_PAGE} OFFSET ${offset}
           `;
 
+
+      // count total number of products
+      
       console.log("query", query);
 
       const scope = db.getScope();
