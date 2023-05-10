@@ -25,6 +25,7 @@ function App() {
       <Route path="/storeList" element={<StoreList/>} />
       <Route path="*" element={<h1>Not Found</h1>} />
       <Route path="/profile" element={<Profile/>} />
+      <Route path="/user/:id" element={<Profile/>} />
     </Routes>
     </BrowserRouter>
   ); 
