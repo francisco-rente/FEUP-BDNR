@@ -1,22 +1,38 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const bookRoutes = require('./routes/book');
-const errorMiddleware = require('./middlewares/error');
-
+const storeRoutes = require('./routes/store');
+const cors = require('cors');
+// const errorMiddleware = require('./middlewares/error');
+const customerRoutes = require('./routes/customer');
+const productRoutes = require('./routes/product');
+const database = require('./db/database');
 // Set up the server
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 // Use body-parser middleware to parse request bodies
 app.use(bodyParser.json());
 
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
 // Set up the routes
-app.use('/api/books', bookRoutes);
+app.use('/api/store', storeRoutes);
+app.use('/api/customer', customerRoutes);
+app.use('/api/product', productRoutes);
 
 // Use error middleware to handle errors
-app.use(errorMiddleware);
+//app.use(errorMiddleware);
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+    // Start the database
+    database.startDB((err) => {
+        if (err) {
+            process.exit(1);
+        }
+        console.log('Database connected.');
+    });
+    console.log(`Server listening on port ${port}`);
 });
