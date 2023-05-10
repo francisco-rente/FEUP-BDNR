@@ -10,12 +10,12 @@ import Stack from '@mui/material/Stack';
 import Pagination from '@mui/material/Pagination';
 
 const style = {
-  bgcolor: "background.paper",
-  display: "flex",
-  // flex center
-  width: "50%",
-  marginLeft: "25%",
-  marginTop: "5%",
+    bgcolor: "background.paper",
+    display: "flex",
+    // flex center
+    width: "50%",
+    marginLeft: "25%",
+    marginTop: "5%",
 };
 
 
@@ -73,49 +73,44 @@ const Products = ({searchResults}) => {
 
 
 const ProductList = () => {
-  const [searchResults, setSearchResults] = useState([]);
-  const [distanceInterval, setDistanceInterval] = useState([0, 100]);
-  const [quantityInterval, setQuantityInterval] = useState([0, 100]);
-  const [priceInterval, setPriceInterval] = useState([0, 500]);
-  const [page, setPage] = useState(1);
-  // ?q=product_title:fts
-  //&&product_distance:distanceInterval
-  //&&product_quantity:quantityInterval
-  //&&product_price:priceInterval
+    const [searchResults, setSearchResults] = useState([]);
+    const [distanceInterval, setDistanceInterval] = useState([0, 100]);
+    const [quantityInterval, setQuantityInterval] = useState([0, 100]);
+    const [priceInterval, setPriceInterval] = useState([0, 500]);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(
-    () => async () => {
-      const query = "http://localhost:3001/api/product";
-      const params = new URLSearchParams({
-        q: "product_title:fts",
-        product_distance: distanceInterval,
-        product_quantity: quantityInterval,
-        product_price: priceInterval,
-        page: page,
-      });
+    useEffect(
+        () => async () => {
+            const query = "http://localhost:3001/api/product";
+            const params = new URLSearchParams({
+                q: "product_title:fts",
+                product_distance: distanceInterval,
+                product_quantity: quantityInterval,
+                product_price: priceInterval,
+                page: page,
+            });
+            console.log("Page change", page);
+            fetch(query + "?" + params)
+                .then((res) => res.json())
+                .then((data) => {
+                    console.log("data", data);
+                    setSearchResults(data.rows);
+                    // kinda sus changing it here and in the pagination component
+                    setTotalPages(data.total);
+                })
+                .catch((err) => {
+                    console.log("err", err);
+                });
+        },
+        [distanceInterval, quantityInterval, priceInterval, page]
+    );
 
-      fetch(query + "?" + params)
-        .then((res) => res.json())
-        .then((data) => {
-          console.log("data", data);
-          setSearchResults(data.rows);
-        })
-        .catch((err) => {
-          console.log("err", err);
-        });
-    },
-    [distanceInterval, quantityInterval, priceInterval, page]
-  );
+    const handleSearch = (searchTerm) => {
+        // make API call or search algorithm to get search results
+        setSearchResults([...searchResults, searchTerm]);
+    };
 
-  const handleSearch = (searchTerm) => {
-    // make API call or search algorithm to get search results
-    setSearchResults([...searchResults, searchTerm]);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form submitted");
-  };
 
     return (
         <>
@@ -149,11 +144,12 @@ const ProductList = () => {
                     </Grid>
                     <Grid item xs={12} md={12} style={{display: "flex", justifyContent: "center"}}>
                         {/*Is this necessary https://mui.com/material-ui/react-pagination/#router-integration*/}
-                        <Pagination count={10} variant="outlined" color="primary" siblingCount={0} boundaryCount={2} onChange={(e, value) => setPage(value)}/>
+                        <Pagination  variant="outlined" color="primary" siblingCount={0} boundaryCount={2} 
+                            page={page} count={totalPages} onChange={(_, value) => setPage(value)} />
                     </Grid>
                 </Grid>
             </div>
-    </>
-  );
+        </>
+    );
 };
 export default ProductList;
