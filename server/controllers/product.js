@@ -43,7 +43,7 @@ const productController = {
 
             products.page = page; 
             products.total = Math.ceil(product_count.rows[0].$1 / NUM_PRODUCTS_PER_PAGE);
-
+            console.log("Total products: " + products.total);
             res.status(200).json(products);
         } catch (err) {
             next(err);

@@ -71,7 +71,6 @@ const Products = ({searchResults}) => {
 
 
 
-
 const ProductList = () => {
     const [searchResults, setSearchResults] = useState([]);
     const [distanceInterval, setDistanceInterval] = useState([0, 100]);
@@ -79,31 +78,32 @@ const ProductList = () => {
     const [priceInterval, setPriceInterval] = useState([0, 500]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-
-    useEffect(
-        () => async () => {
-            const query = "http://localhost:3001/api/product";
+    
+    async function getProducts(reqPage=page) {
+         const query = "http://localhost:3001/api/product";
+         console.log("price interval: " + priceInterval);
             const params = new URLSearchParams({
                 q: "product_title:fts",
                 product_distance: distanceInterval,
                 product_quantity: quantityInterval,
                 product_price: priceInterval,
-                page: page,
+                page: reqPage,
             });
-            console.log("Page change", page);
-            fetch(query + "?" + params)
+            await fetch(query + "?" + params)
                 .then((res) => res.json())
                 .then((data) => {
-                    console.log("data", data);
+                    console.log("Total pages: " + data.total);
                     setSearchResults(data.rows);
-                    // kinda sus changing it here and in the pagination component
-                    setTotalPages(data.total);
+                    setTotalPages(+data.total);
                 })
-                .catch((err) => {
-                    console.log("err", err);
-                });
-        },
-        [distanceInterval, quantityInterval, priceInterval, page]
+                .catch((err) => console.log(err));
+    }
+
+
+
+    useEffect(
+        () => {getProducts()},
+        [distanceInterval, quantityInterval, priceInterval]
     );
 
     const handleSearch = (searchTerm) => {
@@ -111,6 +111,11 @@ const ProductList = () => {
         setSearchResults([...searchResults, searchTerm]);
     };
 
+    const handlePageChange =(value) => {
+        console.log("Page changed to: " + value);
+        setPage(value);
+        getProducts(value);
+    }
 
     return (
         <>
@@ -144,8 +149,8 @@ const ProductList = () => {
                     </Grid>
                     <Grid item xs={12} md={12} style={{display: "flex", justifyContent: "center"}}>
                         {/*Is this necessary https://mui.com/material-ui/react-pagination/#router-integration*/}
-                        <Pagination  variant="outlined" color="primary" siblingCount={0} boundaryCount={2} 
-                            page={page} count={totalPages} onChange={(_, value) => setPage(value)} />
+                        <Pagination  variant="outlined" color="primary" siblingCount={1} boundaryCount={2} 
+                            page={page} count={totalPages} onChange={(_, value) => handlePageChange(value)} />
                     </Grid>
                 </Grid>
             </div>
