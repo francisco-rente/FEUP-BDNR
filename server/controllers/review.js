@@ -43,19 +43,17 @@ const reviewController = {
   getByFTS: async (req, res, next) => {
     const input = req.params.review;
     try {
-      const indexName = "reviewIndex";
-      const query = couchbase.SearchQuery.match(input).field("review.review_body").limit(10);
-      collection = database.getCollection();
-      collection.searchQuery(indexName, query, (err, result) => {
-        if (err) {
-          console.error('Error executing FTS search:', err);
-          res.status(404).json({ message: 'no matching reviews' });
-          return;
-        }
-        else {
+      const indexName = "review_bodyIndex";
+      await database.getCluster().searchQuery(
+          indexName,
+          couchbase.SearchQuery.matchPhrase(input),
+          { limit: 10 }
+        ).then((result) => {
           res.status(200).json(result);
         }
-      });
+        ).catch((err) => {
+          res.status(404).json({ message: 'No reviews match query' });
+        });
     } catch (err) {
       next(err);
     }

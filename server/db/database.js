@@ -1,5 +1,6 @@
 var couchbase = require('couchbase')
 const config = require('../config');
+const { review_bodyIndex } = require('./indexes/review_body');
 
 var _bucket;
 var _cluster;
@@ -16,11 +17,16 @@ module.exports = {
                 });
             _cluster = cluster;
             _bucket = cluster.bucket(config.bucketName); 
+
+            review_bodyIndex(_bucket.scope(config.scopeName));
+
+
             return callback(null);
         } catch (err) {
             console.log("Error connecting to Couchbase cluster");
             return callback(err);
         }
+
     }, 
     getInfo() {
         console.log("Getting info");
