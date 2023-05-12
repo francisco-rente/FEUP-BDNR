@@ -12,6 +12,8 @@ router.get('/:id/stores', productController.getStoresByProductId);
 
 router.post('/:id/addReview', productController.addReview);
 
+router.post('/fts/:query', productController.getByFTS);
+
 // POST /api/store
 //router.post('/', storeController.create);
 

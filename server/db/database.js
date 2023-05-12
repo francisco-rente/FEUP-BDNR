@@ -1,6 +1,7 @@
 var couchbase = require('couchbase')
 const config = require('../config');
 const { review_bodyIndex } = require('./indexes/review_body');
+//const { productSearchIndex } = require('./indexes/productSearch');
 
 var _bucket;
 var _cluster;
@@ -19,6 +20,8 @@ module.exports = {
             _bucket = cluster.bucket(config.bucketName); 
 
             review_bodyIndex(_bucket.scope(config.scopeName));
+            //productSearchIndex(_bucket.scope(config.scopeName));
+            //productSearchIndex(_bucket.scope(config.scopeName).collection("products"));
 
 
             return callback(null);
