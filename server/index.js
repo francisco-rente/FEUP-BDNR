@@ -2,7 +2,19 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const storeRoutes = require('./routes/store');
 const cors = require('cors');
-const searchIndexes = require('./db/indexes')
+
+/*
+const { review_bodyIndex } = require('./db/indexes/review_body');
+
+review_bodyIndex()
+  .then(() => {
+    console.log('Secondary indexes created successfully.');
+  })
+  .catch((err) => {
+    console.error('Error creating secondary indexes:', err);
+  });
+*/
+
 // const errorMiddleware = require('./middlewares/error');
 const customerRoutes = require('./routes/customer');
 const productRoutes = require('./routes/product');
