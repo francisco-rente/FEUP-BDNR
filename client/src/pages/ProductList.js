@@ -102,10 +102,7 @@ const ProductList = () => {
     //function to make call to api for fts
     async function getProductsFTS(query) {
         const url = "http://localhost:3001/api/product/fts/";
-        const params = new URLSearchParams({
-            q: query,
-        });
-        await fetch(url+ "?" + params)
+        await fetch(url+query)
             .then((res) => res.json())
             .then((data) => {
 

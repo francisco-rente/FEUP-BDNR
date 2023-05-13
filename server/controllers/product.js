@@ -80,7 +80,7 @@ const productController = {
 
     try {
       const indexName = "productSearch";
-      await database.getCluster().searchQuery(
+      await db.getCluster().searchQuery(
           indexName,
           couchbase.SearchQuery.matchPhrase(input),
           { limit: 10 }
