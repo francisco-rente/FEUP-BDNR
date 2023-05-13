@@ -99,6 +99,24 @@ const ProductList = () => {
                 .catch((err) => console.log(err));
     }
 
+    //function to make call to api for fts
+    async function getProductsFTS(query) {
+        const url = "http://localhost:3001/api/product/fts/";
+        const params = new URLSearchParams({
+            q: query,
+        });
+        await fetch(url+ "?" + params)
+            .then((res) => res.json())
+            .then((data) => {
+
+                console.log("data ",data)
+                console.log("Total pages: " + data.total);
+                setSearchResults(data.rows);
+                setTotalPages(+data.total);
+            })
+            .catch((err) => console.log(err));
+    }
+
 
 
     useEffect(
@@ -107,8 +125,7 @@ const ProductList = () => {
     );
 
     const handleSearch = (searchTerm) => {
-        // make API call or search algorithm to get search results
-        setSearchResults([...searchResults, searchTerm]);
+        getProductsFTS(searchTerm);
     };
 
     const handlePageChange =(value) => {

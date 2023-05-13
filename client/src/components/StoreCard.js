@@ -1,15 +1,46 @@
-import { useState, React } from 'react';
-import { Card, CardContent, Typography, Button } from '@mui/material';
+import React, { useState } from 'react';
+import { Card, CardContent, Typography, Button, TextField } from '@mui/material';
 
 const StoreCard = ({ store }) => {
   const [showProducts, setShowProducts] = useState(false);
+  //TODO improve the way this value is tracked
 
-  const toggleProducts = () => {
+
+  function toggleProducts(){
     setShowProducts(!showProducts);
   };
 
+  async function applyDiscount(discount, store_id) {
+    console.log("inside applyDiscount of store card");
+    const data = {
+      store_id: store_id,
+      discount: discount
+    };
+  
+    try {
+      const response = await fetch("http://localhost:3001/api/store/discount", {
+        method: "POST",
+        mode : 'cors',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+  
+      if (response.status === 200) {
+        console.log("Discount applied successfully, response is:", response);
+      } else {
+        console.log("Failed to apply discount, error is:", response);
+      }
+    } catch (error) {
+      console.log("Error occurred while applying discount:", error);
+    }
+  }
+
   const ProductList = ({ products }) => {
+    const [discount, setDiscount] = useState(0);
     return (
+      <div>
       <ul>
         {products.map((product) => (
           <li key={product.product_id}>
@@ -26,14 +57,16 @@ const StoreCard = ({ store }) => {
                 </Typography>
               </CardContent>
             </Card>
-          </li>
+          </li> 
         ))}
       </ul>
+      <TextField id="outlined-basic" label="Discount" variant="outlined" size='small' onChange={(e) => setDiscount(e.target.value)}/>
+      <Button variant="contained" onClick={() => applyDiscount(discount, store.store_id)}>Apply store discount</Button>
+      </div>
     );
   };
 
   return (
-    console.log(store),
     <Card>
       <CardContent>
         <Typography variant="h5" component="div">
@@ -48,10 +81,10 @@ const StoreCard = ({ store }) => {
         <Typography color="text.secondary">
           Email: {store.contact.email}, Phone number: {store.contact.phone_number}
         </Typography>
-        <Button onClick={toggleProducts} size="small">
+        <Button onClick={() =>toggleProducts()} size="small">
           {showProducts ? 'Hide Products' : 'Show Products'}
         </Button>
-        {showProducts && (<ProductList products={store.store_items} />)}
+        {showProducts && (<ProductList products={store.store_items} store_id = {store.store_id} />)}
       </CardContent>
     </Card>
   );

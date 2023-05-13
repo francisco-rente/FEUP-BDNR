@@ -50,6 +50,7 @@ const productController = {
         }
     },
     getById: async (req, res, next) => {
+        console.log("inside getById");
         console.log("params", req.params);
         try {
             console.log("params", req.params);
@@ -73,6 +74,10 @@ const productController = {
 
   getByFTS: async (req, res, next) => {
     const input = req.params.query;
+
+    console.log("inside getByFTS");
+    console.log("input", input);
+
     try {
       const indexName = "productSearch";
       await database.getCluster().searchQuery(
