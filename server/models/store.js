@@ -44,51 +44,23 @@ const Store = {
 
 
     applyDiscount: (id, discount) => new Promise((resolve, reject) =>{
-      const scope = db.getScope();   
-      console.log("scope", scope);
-          /*
-      const query = `
-      UPDATE stores 
-      SET store_items = ARRAY v FOR v IN store_items 
-                        WHEN v.product_id IN (
-                            SELECT p.product_id 
-                            FROM stores AS s 
-                            UNNEST s.store_items AS p 
-                            WHERE s.store_id = ${id} 
-                        )
-                        END
-                        || ARRAY {"product_id": v.product_id, "price": v.price + ${discount}, "quantity": v.quantity} FOR v IN store_items 
-                        WHEN v.product_id IN (
-                            SELECT p.product_id 
-                            FROM stores AS s 
-                            UNNEST s.store_items AS p 
-                            WHERE s.store_id = ${id} 
-                        )
-                        END
-      WHERE store_id = ${id};
-      `;*/
+        const scope = db.getScope();   
+        console.log("scope", scope);
 
-     /* const query = `UPDATE stores 
-SET store_items = ARRAY {"product_id": v.product_id, "price": v.price + ${discount}, "quantity": v.quantity} FOR v IN store_items 
-WHERE store_id = ${id};`;
-*/
-const query = `
-UPDATE stores 
-SET store_items = ARRAY v FOR v IN store_items 
-                  END 
-                  || [{"product_id": v.product_id, "price": v.price + ${discount}, "quantity": v.quantity}] 
-WHERE store_id = ${id};
-`;
-      scope.query( query, (err, result) => {
-          if (err) {
-              console.log("Error in Store.applyDiscount");
-              reject(err);
-          } else {
-              console.log("Store.applyDiscount");
-              resolve(result);
-          }
-      });
-  }),
+
+        const query = `UPDATE server.store.stores store SET s.price = s.price * (1 - ${discount})/100) FOR s IN store_items END WHERE store.store_id = ${id};`; 
+
+        scope.query( query , (err, result) => {
+
+            if (err) {
+                console.log("Error in Store.applyDiscount");
+                reject(err);
+            } else {
+                console.log("Store.applyDiscount");
+                resolve(result);
+            }
+        });
+    }),
 
 
     /*
