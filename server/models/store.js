@@ -46,9 +46,11 @@ const Store = {
     applyDiscount: (id, discount) => new Promise((resolve, reject) =>{
         const scope = db.getScope();   
         console.log("scope", scope);
+        console.log("id", id);
+        console.log("discount", discount);
 
 
-        const query = `UPDATE server.store.stores store SET s.price = s.price * (1 - ${discount})/100) FOR s IN store_items END WHERE store.store_id = ${id};`; 
+ const query = `UPDATE server.store.stores store SET s.price = s.price * (1 - ${parseInt(discount)}/100) FOR s IN store_items END WHERE store.store_id = ${id}`; 
 
         scope.query( query , (err, result) => {
 
