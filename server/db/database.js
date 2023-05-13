@@ -12,7 +12,10 @@ module.exports = {
             const cluster = await couchbase.connect(
                 config.dbUrl, {
                     username: config.dbUsername,
-                    password: config.dbPassword
+                    password: config.dbPassword,
+                    transactions: {
+//                        durabilityLevel: couchbase.DurabilityLevel.Majority
+                    }
                 });
             _cluster = cluster;
             _bucket = cluster.bucket(config.bucketName); 

@@ -52,8 +52,6 @@ const productController = {
         if (avg_price.error) res.status(404).json({ message: 'cannot calculate avg price' });
         
         product.content.avg_price = avg_price.rows[0].avg_price ?? "N/A";
-
-        product.content.avg_rating = 3.5;
         res.status(200).json(product);
       } catch (err) {
           next(err);
@@ -166,11 +164,18 @@ const productController = {
 
             if (!product) throw new Error("Product not found");
 
-            const new_product = {
-                ...product.content,
-                reviews: product.content.reviews.concat([new_review])
-            }
+           const new_product = {
+               ...product.content,
+               reviews: product.content.reviews.concat([new_review])
+           }
+            console.log("new_product", new_product);
             await ctx.replace(product, new_product);
+          //  const update_query = "UPDATE server.store.products AS p SET p.reviews = ARRAY_APPEND(p.reviews, " + JSON.stringify(new_review) + ") WHERE p.product_id = '" + parseInt(productId) + "';";
+          //  console.log("update_query", update_query);
+          //  const res = await ctx.query(update_query);
+            //if(res.meta().status !== 200) throw new Error("Product not found");
+
+
         }).then((result) => {
             res.status(200).json({ message: 'review added' });    
             console.log("Transaction result", result);
