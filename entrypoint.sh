@@ -73,9 +73,9 @@ cbq -e localhost:8093 -u admin -p password -s "CREATE INDEX customer_id ON serve
 
 
 curl -s -XPUT -H "Content-Type: application/json" \
--u admin:password http://localhost:8094/api/index/review_body_idx -d \
+-u admin:password http://localhost:8094/api/index/review_bodyIndex -d \
 '{
- "name": "test",
+ "name": "review_bodyIndex",
  "type": "fulltext-index",
  "params": {
   "doc_config": {

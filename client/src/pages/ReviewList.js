@@ -35,7 +35,13 @@ const ReviewList = () => {
       .then((res) => res.json())
       .then((data) => {
         console.log("data", data);
-        setReviews(data.rows);
+        if(data.message == 'No reviews match query' || data.message == 'review not found'){
+          setReviews([]);
+        }
+        else{
+          setReviews(data.rows);
+        }
+        
       }).catch((err) => {
         console.log("err", err);
       });
