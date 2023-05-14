@@ -20,7 +20,7 @@ module.exports = {
             _bucket = cluster.bucket(config.bucketName); 
 
             review_bodyIndex(_bucket.scope(_cluster));
-            productSearchIndex(_bucket.scope(config.scopeName));
+           // productSearchIndex(_bucket.scope(config.scopeName));
             //productSearchIndex(_bucket.scope(config.scopeName).collection("products"));
 
 

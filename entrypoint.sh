@@ -68,6 +68,86 @@ cbq -e localhost:8093 -u admin -p password -s "CREATE INDEX product_id ON server
 # create index on customer_id
 cbq -e localhost:8093 -u admin -p password -s "CREATE INDEX customer_id ON server.store.users(customer_id)" -f json
 
+
+# create index 
+
+
+curl -s -XPUT -H "Content-Type: application/json" \
+-u admin:password http://localhost:8094/api/index/review_body_idx -d \
+'{
+ "name": "test",
+ "type": "fulltext-index",
+ "params": {
+  "doc_config": {
+   "docid_prefix_delim": "",
+   "docid_regexp": "",
+   "mode": "scope.collection.type_field",
+   "type_field": "type"
+  },
+  "mapping": {
+   "default_analyzer": "standard",
+   "default_datetime_parser": "dateTimeOptional",
+   "default_field": "_all",
+   "default_mapping": {
+    "dynamic": true,
+    "enabled": false
+   },
+   "default_type": "_default",
+   "docvalues_dynamic": false,
+   "index_dynamic": true,
+   "store_dynamic": false,
+   "type_field": "_type",
+   "types": {
+    "store.products": {
+     "dynamic": true,
+     "enabled": true,
+     "properties": {
+      "reviews": {
+       "dynamic": false,
+       "enabled": true,
+       "properties": {
+        "review_body": {
+         "enabled": true,
+         "dynamic": false,
+         "fields": [
+          {
+           "docvalues": true,
+           "include_in_all": true,
+           "include_term_vectors": true,
+           "index": true,
+           "name": "review_body",
+           "store": true,
+           "type": "text"
+          }
+         ]
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "store": {
+   "indexType": "scorch",
+   "segmentVersion": 15
+  }
+ },
+ "sourceType": "gocbcore",
+ "sourceName": "server",
+ "sourceParams": {},
+ "planParams": {
+  "maxPartitionsPerPIndex": 1024,
+  "indexPartitions": 1,
+  "numReplicas": 0
+ }
+}'
+
+
+
+
+
+
+
 # TODO: find out why this is needed in this order 
 
 # keep container running
