@@ -96,28 +96,23 @@ const reviewController = {
         try {
             const indexName = 'review_bodyIndex';
             const user_input = req.query.q;
-            const page = req.query.page;
+            const page = req.query.page || 1;
             
-            const OFFSET = page * 10;
-
-            let products_ids = await database.getCluster().searchQuery(indexName, couchbase.SearchQuery.matchPhrase(user_input), {})
-                .then(async (result) => result.rows.map((row) => row.id))
+            const OFFSET = (page - 1) * 10;
+            
+           
+            let [total, products_ids] = await database.getCluster().searchQuery(indexName, couchbase.SearchQuery.matchPhrase(user_input), { limit: 10, skip: OFFSET })
+                .then((result) => {
+                    console.log("result", result);
+                   return [result.meta.metrics.total_rows, result.rows.map((row) => row.id)]})
                 .catch(() => []);
-            console.log("products_ids", products_ids);
+           
+
             if(products_ids.length === 0) return res.status(200).json([]); // TODO: return a better message if possible
             
             
-            const total = products_ids.length;
-            
-            // Pagination has to be made manually through the results array, otherwise one req retrieves all the results (getting the number) and another the limited results
-                
-            // slice the products_ids array TODO: Check conditions
-            if(OFFSET + 10 < products_ids.length) products_ids = products_ids.slice(OFFSET, OFFSET + 10);
-            else if(OFFSET < products_ids.length) products_ids = products_ids.slice(OFFSET);
-            else if(OFFSET >= products_ids.length) return res.status(200).json(products_ids);  
-
-
-
+            if(page > Math.ceil(total / 10)) return res.status(404).json({ message: "Page not found" });
+        
             const col = await database.getCollection("products");
             const products =  products_ids.map(  (id) =>
                 col.get(id)
@@ -125,7 +120,6 @@ const reviewController = {
                     .catch(() => res.status(404).json({ message: "Error getting products" })));
             // settle all promises
             await Promise.all(products).then((values) => {
-                console.log("res", values);
                 // Naming convention to make all req return the same format
                 res.status(200).json({
                     total: Math.ceil(total / 10),

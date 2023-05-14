@@ -122,6 +122,7 @@ const ProductList = () => {
     async function queryProducts(query) {
         const url = `http://localhost:3001/api/${searchType}`; 
         const params = new URLSearchParams({
+            page: page,
             q: query
         });
         console.log("SEARCH QUERY: ", url + "?" + params);

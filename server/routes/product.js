@@ -6,7 +6,7 @@ const productController = require('../controllers/product');
 router.get('/', productController.getAll);
 
 
-router.get('/fts/:query', productController.getByFTS);
+router.get('/fts', productController.getByFTS);
 
 // GET /api/product/id
 router.get('/:id', productController.getById);

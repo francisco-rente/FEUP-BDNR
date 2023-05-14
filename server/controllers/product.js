@@ -1,6 +1,6 @@
 const Customer = require("../models/customer");
 const Product = require("../models/product");
-
+couchbase = require('couchbase');
 const db = require("../db/database");
 
 const NUM_PRODUCTS_PER_PAGE = 10;
@@ -70,26 +70,50 @@ const productController = {
         }
     },
 
-  getByFTS: async (req, res, next) => {
-    const input = req.params.query;
+    getByFTS: async (req, res, next) => {
+        const search_query = req.query.q; 
+        const page = req.query.page || 1;
+        const clu = await db.getCluster();
+        console.log("Page", page);
+        const OFFSET = (page - 1) * 10;
 
-    console.log("inside getByFTS");
-    console.log("input", input);
 
-    try {
-      const indexName = "product_fts";
-      await db.getCluster().searchQuery(
-          indexName,
-          couchbase.SearchQuery.matchPhrase(input),
-          { limit: 10 }
-        ).then((result) => {
-          res.status(200).json(result);
-        }
-        ).catch((err) => {
-          res.status(404).json({ message: 'No products match query' });
-        });
-    } catch (err) {
-      next(err);
+        const qp = couchbase.SearchQuery.disjuncts(
+            couchbase.SearchQuery.match(search_query).field("product_category"),
+            couchbase.SearchQuery.match(search_query).field("product_title")
+        ); 
+
+        try {
+            const indexName = "productFTS";
+            const results = await clu.searchQuery(indexName, qp, { limit: 10, skip: OFFSET}).then((result) => result).catch((err) => err);
+            if(results.error) res.status(200).json({data: { rows: [] }});
+
+            const total = results.meta.metrics.total_rows;        
+
+
+            const product_ids = results.rows.map((row) => row.id);
+    
+            if(total === 0) return res.status(200).json({data: { rows: [] }});
+            if(page > Math.ceil(total / 10)) return res.status(404).json({ message: "Page not found" });
+           
+
+            console.log("product_ids", product_ids);
+            const col = db.getCollection("products");
+            const products = await product_ids.map((id) => col.get(id).then((result) => result).catch((err) => err));
+            
+
+            await Promise.all(products).then((values) => {
+                const res_products = {
+                    total: Math.ceil(total / 10),
+                    rows: values.map((row) => {return { product : row.value }}),
+                }
+                console.log("res_products", res_products);
+                res.status(200).json(res_products);
+            }).catch(() => res.status(404).json({ message: "Error getting products" }));
+
+
+        } catch (err) {
+            next(err);
     }},
 
     getStoresByProductId: async (req, res, next) => {
