@@ -8,6 +8,12 @@ import ProductCard from "../components/ProductCard";
 import { Grid } from "@material-ui/core";
 import Stack from '@mui/material/Stack';
 import Pagination from '@mui/material/Pagination';
+import Box from '@mui/material/Box';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+
 
 const style = {
     bgcolor: "background.paper",
@@ -19,9 +25,9 @@ const style = {
 };
 
 
-const FilterStack = ({setDistanceInterval, setQuantityInterval, setPriceInterval}) => {
+const FilterStack = ({ setDistanceInterval, setQuantityInterval, setPriceInterval }) => {
 
-    return(
+    return (
         <Stack spacing={2} sx={{ width: '100%' }}>
             <ListItem button>
                 <FilterSlider
@@ -55,7 +61,7 @@ const FilterStack = ({setDistanceInterval, setQuantityInterval, setPriceInterval
 
 
 
-const Products = ({searchResults}) => {
+const Products = ({ searchResults }) => {
     return (<>
         <Typography variant="h6">Search Results:</Typography>
         <ul>
@@ -78,37 +84,46 @@ const ProductList = () => {
     const [priceInterval, setPriceInterval] = useState([0, 500]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [searchType, setSearchType] = useState('product/fts/');
+
     
+    const handleChange = (event) => {
+        setSearchType(event.target.value);
+    };
+
     async function getProducts(reqPage=page) {
-         const query = "http://localhost:3001/api/product";
-         console.log("price interval: " + priceInterval);
-            const params = new URLSearchParams({
-                q: "product_title:fts",
-                product_distance: distanceInterval,
-                product_quantity: quantityInterval,
-                product_price: priceInterval,
-                page: reqPage,
-            });
-            await fetch(query + "?" + params)
-                .then((res) => res.json())
-                .then((data) => {
-                    console.log("Total pages: " + data.total);
-                    setSearchResults(data.rows);
-                    setTotalPages(+data.total);
-                })
-                .catch((err) => console.log(err));
-    }
+        const query = "http://localhost:3001/api/product";
+        console.log("price interval: " + priceInterval);
+           const params = new URLSearchParams({
+               q: "product_title:fts",
+               product_distance: distanceInterval,
+               product_quantity: quantityInterval,
+               product_price: priceInterval,
+               page: reqPage,
+           });
+           await fetch(query + "?" + params)
+               .then((res) => res.json())
+               .then((data) => {
+                    console.log("data from getProducts", data);
+                   console.log("Total pages: " + data.total);
+                   setSearchResults(data.rows);
+                   setTotalPages(+data.total);
+               })
+               .catch((err) => console.log(err));
+   }
+
 
     //function to make call to api for fts
-    async function getProductsFTS(query) {
-        const url = "http://localhost:3001/api/product/fts/";
-        await fetch(url+query)
+    async function queryProducts(query) {
+        const url = "http://localhost:3001/api/";
+        await fetch(url + searchType + query)
             .then((res) => res.json())
             .then((data) => {
 
-                console.log("data ",data)
+                console.log("data from queryProducts", data)
                 console.log("Total pages: " + data.total);
                 setSearchResults(data.rows);
+                console.log("search results: ", searchResults)
                 setTotalPages(+data.total);
             })
             .catch((err) => console.log(err));
@@ -116,16 +131,18 @@ const ProductList = () => {
 
 
 
-    useEffect(
-        () => {getProducts()},
-        [distanceInterval, quantityInterval, priceInterval]
-    );
+
+    
+  useEffect(
+    () => {getProducts()},
+    [distanceInterval, quantityInterval, priceInterval]
+  );
 
     const handleSearch = (searchTerm) => {
-        getProductsFTS(searchTerm);
+        queryProducts(searchTerm);
     };
 
-    const handlePageChange =(value) => {
+    const handlePageChange = (value) => {
         console.log("Page changed to: " + value);
         setPage(value);
         getProducts(value);
@@ -136,18 +153,40 @@ const ProductList = () => {
             <MyNavbar hasSearchBar={false} style={{ height: "50px" }}></MyNavbar>
             <div>
                 {/*FTS in title*/}
-                <SearchBar
-                    onSearch={handleSearch}
-                    label="Search products"
-                    formProps={{
-                        style: {
-                            display: "flex",
-                            width: "50%",
-                            marginLeft: "25%",
-                            marginTop: "5%",
-                        },
-                    }}
-                />
+                <div>
+                    <SearchBar
+                        onSearch={handleSearch}
+                        label="Search query"
+                        formProps={{
+                            style: {
+                                display: "flex",
+                                width: "50%",
+                                marginLeft: "25%",
+                                marginTop: "5%",
+                            },
+                        }}
+                    />
+                    <Box sx={{
+                        display: "flex",
+                        width: "50%",
+                        marginLeft: "25%",
+                        marginTop: "1%",
+                    }}>
+                        <FormControl fullWidth>
+                            <InputLabel id="demo-simple-select-label">Search Type</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={searchType}
+                                label="Search Type"
+                                onChange={handleChange}
+                            >
+                                <MenuItem value={"product/fts/"}>FTS</MenuItem>
+                                <MenuItem value={"review/fts/"}>Review</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+                </div>
 
                 <Grid container spacing={3}>
                     <Grid item xs={12} md={4}>
@@ -161,9 +200,9 @@ const ProductList = () => {
                     <Grid item xs={12} md={8}>
                         <Products searchResults={searchResults} />
                     </Grid>
-                    <Grid item xs={12} md={12} style={{display: "flex", justifyContent: "center"}}>
+                    <Grid item xs={12} md={12} style={{ display: "flex", justifyContent: "center" }}>
                         {/*Is this necessary https://mui.com/material-ui/react-pagination/#router-integration*/}
-                        <Pagination  variant="outlined" color="primary" siblingCount={1} boundaryCount={2} 
+                        <Pagination variant="outlined" color="primary" siblingCount={1} boundaryCount={2}
                             page={page} count={totalPages} onChange={(_, value) => handlePageChange(value)} />
                     </Grid>
                 </Grid>

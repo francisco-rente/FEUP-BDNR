@@ -49,11 +49,17 @@ const reviewController = {
         console.log('query', query);
         const result = await new Promise((resolve, reject) => {
           scope.query(query, (err, result) => {
-            if (err) reject(err);
-            else resolve(result);
+            if (err) {
+              reject(err);
+            }
+            else {
+              resolve(result);
+            }
           });
         });
         console.log("pushing result into results:", result);
+        console.log("result.rows", result.rows);
+        console.log("result.rows[0]", result.rows[0]);
         results.push(result);
       }
     } catch (err) {

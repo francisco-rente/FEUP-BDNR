@@ -8,7 +8,6 @@ const NUM_PRODUCTS_PER_PAGE = 10;
 const productController = {
     getAll: async (req, res, next) => {
         try {
-            console.log("params", req.query);
             const distance = req.query.product_distance.split(",").map((x) => +x);
             const quantity = req.query.product_quantity.split(",").map((x) => +x);
             const price = req.query.product_price.split(",").map((x) => +x);
@@ -32,7 +31,6 @@ const productController = {
             const products = await scope.query(query
                 , (err, result) => {
                     if (err) {
-                        console.log("Error in Store.findAll");
                         return err;
                     } else {
                         console.log("Store.findAll");
@@ -43,7 +41,6 @@ const productController = {
 
             products.page = page; 
             products.total = Math.ceil(product_count.rows[0].$1 / NUM_PRODUCTS_PER_PAGE);
-            console.log("Total products: " + products.total);
             res.status(200).json(products);
         } catch (err) {
             next(err);
@@ -66,6 +63,7 @@ const productController = {
             product.content.avg_price = avg_price.rows[0].avg_price ?? "N/A";
 
             product.content.avg_rating = 3.5;
+            product.total = 1;
             res.status(200).json(product);
         } catch (err) {
             next(err);

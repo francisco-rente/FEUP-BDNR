@@ -63,46 +63,6 @@ const Store = {
             }
         });
     }),
-
-
-    /*
-  create: (book) => {
-    return new Promise((resolve, reject) => {
-      const id = book.title.replace(/\s/g, '-').toLowerCase();
-      store_collection.insert(id, book, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result.value);
-        }
-      });
-    });
-  },
-
-  update: (id, book) => {
-    return new Promise((resolve, reject) => {
-      store_collection.replace(id, book, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result.value);
-        }
-      });
-    });
-  },
-
-  delete: (id) => {
-    return new Promise((resolve, reject) => {
-      store_collection.remove(id, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result);
-        }
-      });
-    });
-  }
-  */
 }
 
 module.exports = Store;
