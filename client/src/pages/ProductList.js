@@ -130,9 +130,17 @@ const ProductList = () => {
         await fetch(url + "?" + params)
             .then((res) => res.json())
             .then((data) => {
+                if(data.length == 0 || !data || !data.rows || data.rows.length == 0) {
+                    console.log("No results found");
+                    setSearchResults([]);
+                    setTotalPages(1);
+                    setPage(1);
+                }
+                else{
                 console.log("data from queryProducts", data)
                 setSearchResults(data.rows);
                 setTotalPages(+data.total);
+                }
             })
             .catch((err) => console.log(err));
     }
