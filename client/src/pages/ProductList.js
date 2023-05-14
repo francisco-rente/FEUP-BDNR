@@ -105,7 +105,6 @@ const ProductList = () => {
                .then((res) => res.json())
                .then((data) => {
                     console.log("data from getProducts", data);
-                   console.log("Total pages: " + data.total);
                    setSearchResults(data.rows);
                    setTotalPages(+data.total);
                })
@@ -116,14 +115,13 @@ const ProductList = () => {
     //function to make call to api for fts
     async function queryProducts(query) {
         const url = "http://localhost:3001/api/";
+        console.log("queryProducts", url + searchType + query)
         await fetch(url + searchType + query)
             .then((res) => res.json())
             .then((data) => {
 
                 console.log("data from queryProducts", data)
-                console.log("Total pages: " + data.total);
                 setSearchResults(data.rows);
-                console.log("search results: ", searchResults)
                 setTotalPages(+data.total);
             })
             .catch((err) => console.log(err));

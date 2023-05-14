@@ -14,7 +14,7 @@ echo "Cluster created" # Create the user
 couchbase-cli user-manage -c localhost:8091 --username admin --password password --set --rbac-username admin --rbac-password password --rbac-name "Administrator" --roles admin --auth-domain local
 
 echo "User created"
-2
+
 # Create the bucket-type
 couchbase-cli bucket-create -c localhost:8091 --username admin --password password --bucket server --bucket-type couchbase --bucket-ramsize 100 --bucket-replica 1 --enable-flush 1
 
@@ -143,8 +143,78 @@ curl -s -XPUT -H "Content-Type: application/json" \
 }'
 
 
-
-
+curl -s -XPUT -H "Content-Type: application/json" \
+-u admin:password http://localhost:8094/api/index/productFTS -d \
+'{
+  "type": "fulltext-index",
+  "name": "productFTS",
+  "sourceType": "gocbcore",
+  "sourceName": "server",
+  "planParams": {
+    "maxPartitionsPerPIndex": 1024,
+    "indexPartitions": 1
+  },
+  "params": {
+    "doc_config": {
+      "docid_prefix_delim": "",
+      "docid_regexp": "",
+      "mode": "scope.collection.type_field",
+      "type_field": "type"
+    },
+    "mapping": {
+      "analysis": {},
+      "default_analyzer": "standard",
+      "default_datetime_parser": "dateTimeOptional",
+      "default_field": "_all",
+      "default_mapping": {
+        "dynamic": false,
+        "enabled": false
+      },
+      "default_type": "_default",
+      "docvalues_dynamic": false,
+      "index_dynamic": false,
+      "store_dynamic": false,
+      "type_field": "_type",
+      "types": {
+        "store.products": {
+          "dynamic": false,
+          "enabled": true,
+          "properties": {
+            "product_category": {
+              "dynamic": false,
+              "enabled": true,
+              "fields": [
+                {
+                  "analyzer": "en",
+                  "index": true,
+                  "name": "product_category",
+                  "type": "text"
+                }
+              ]
+            },
+            "product_title": {
+              "dynamic": false,
+              "enabled": true,
+              "fields": [
+                {
+                  "analyzer": "en",
+                  "index": true,
+                  "name": "product_title",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "store": {
+      "indexType": "scorch",
+      "segmentVersion": 15
+    }
+  },
+  "sourceParams": {}
+}'
 
 
 

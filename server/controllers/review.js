@@ -39,7 +39,7 @@ const reviewController = {
       next(err);
     }
   },
-
+/*
   getByFTSaux: async (reviews) => {
     const results = [];
     const scope = database.getScope();
@@ -90,6 +90,29 @@ const reviewController = {
       next(err);
     }
   },
+*/
+
+getByFTS: async (req, res, next) => {
+  const input = req.params.review;
+  let reviews = [];
+  console.log('input', input);
+  try {
+    const indexName = 'review_bodyIndex';
+    await database
+      .getCluster()
+      .searchQuery(indexName, couchbase.SearchQuery.matchPhrase(input), { limit: 10 })
+      .then(async (result) => {
+        console.log('result', result);
+        res.status(200).json(result);
+      })
+      .catch((err) => {
+        console.log('err in getByFTS', err);
+        res.status(404).json({ message: 'No reviews match query' });
+      });
+  } catch (err) {
+    next(err);
+  }
+},
 };
 
 module.exports = reviewController;
