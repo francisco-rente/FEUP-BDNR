@@ -35,6 +35,7 @@ const StoreCard = ({ store }) => {
     } catch (error) {
       console.log("Error occurred while applying discount:", error);
     }
+      window.location.reload("false");
   }
 
   const ProductList = ({ products }) => {
