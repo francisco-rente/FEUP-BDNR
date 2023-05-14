@@ -1,6 +1,6 @@
 var couchbase = require('couchbase')
 const config = require('../config');
-const { review_bodyIndex } = require('./indexes/review_body');
+// const { review_bodyIndex } = require('./indexes/review_body');
 //const { productSearchIndex } = require('./indexes/productSearch');
 
 var _bucket;
@@ -39,7 +39,7 @@ module.exports = {
     getBucket: () => _bucket,
     getScope: () =>  _bucket.scope(config.scopeName) ?? null,  
     getCollection: (collectionName) => {
-        console.log("Getting collection: " + collectionName);
+      //  console.log("Getting collection: " + collectionName);
         const scope = _bucket.scope("store");
         const collection = scope.collection(collectionName);
         console.log(collection);

@@ -77,7 +77,7 @@ const productController = {
     console.log("input", input);
 
     try {
-      const indexName = "productSearch";
+      const indexName = "product_fts";
       await db.getCluster().searchQuery(
           indexName,
           couchbase.SearchQuery.matchPhrase(input),

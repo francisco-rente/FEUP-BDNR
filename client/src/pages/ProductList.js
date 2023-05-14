@@ -76,6 +76,12 @@ const Products = ({ searchResults }) => {
 };
 
 
+const SEARCH_TYPE = {
+    PRODUCT: "product/fts",
+    REVIEW: "review/fts"
+};
+
+
 
 const ProductList = () => {
     const [searchResults, setSearchResults] = useState([]);
@@ -84,7 +90,7 @@ const ProductList = () => {
     const [priceInterval, setPriceInterval] = useState([0, 500]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [searchType, setSearchType] = useState('product/fts/');
+    const [searchType, setSearchType] = useState(SEARCH_TYPE.PRODUCT);
 
     
     const handleChange = (event) => {
@@ -114,12 +120,15 @@ const ProductList = () => {
 
     //function to make call to api for fts
     async function queryProducts(query) {
-        const url = "http://localhost:3001/api/";
-        console.log("queryProducts", url + searchType + query)
-        await fetch(url + searchType + query)
+        const url = `http://localhost:3001/api/${searchType}`; 
+        const params = new URLSearchParams({
+            q: query
+        });
+        console.log("SEARCH QUERY: ", url + "?" + params);
+
+        await fetch(url + "?" + params)
             .then((res) => res.json())
             .then((data) => {
-
                 console.log("data from queryProducts", data)
                 setSearchResults(data.rows);
                 setTotalPages(+data.total);
@@ -179,8 +188,8 @@ const ProductList = () => {
                                 label="Search Type"
                                 onChange={handleChange}
                             >
-                                <MenuItem value={"product/fts/"}>FTS</MenuItem>
-                                <MenuItem value={"review/fts/"}>Review</MenuItem>
+                                <MenuItem value={SEARCH_TYPE.PRODUCT}>Product</MenuItem>
+                                <MenuItem value={SEARCH_TYPE.REVIEW}>Review</MenuItem>
                             </Select>
                         </FormControl>
                     </Box>

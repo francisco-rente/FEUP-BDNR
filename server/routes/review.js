@@ -7,6 +7,6 @@ router.get('/', reviewController.getAll);
 
 router.get('/id/:id', reviewController.getById);
 
-router.get('/fts/:review', reviewController.getByFTS);
+router.get('/fts', reviewController.getByFTS);
 
 module.exports = router;
