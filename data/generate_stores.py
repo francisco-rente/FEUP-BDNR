@@ -90,6 +90,27 @@ def create_location(index):
     }
 
 
+def create_geoarea(index):
+    return {
+            "coordinates": [
+                locations[index]['longitude'],
+                locations[index]['latitude']
+                ],
+            "radius": "10mi",
+            "type": "circle"
+            }
+
+
+def create_geojson(index):
+    return {
+            "coordinates": [
+                locations[index]['longitude'],
+                locations[index]['latitude']
+                ],
+            "type": "Point"
+            }
+
+
 def create_contact(store_name):
     return {
         'phone_number': ''.join(random.choices(string.digits, k=10)),
@@ -103,6 +124,8 @@ def create_store(store_name, index):
     store['name'] = store_name
     store['location'] = create_location(index)
     store['contact'] = create_contact(store_name)
+    store['geoarea'] = create_geoarea(index)
+    store['geojson'] = create_geojson(index)
     return store
 
 

@@ -2,6 +2,27 @@ const Customer = require("../models/customer");
 const Product = require("../models/product");
 couchbase = require('couchbase');
 const db = require("../db/database");
+const axios = require('axios');
+
+
+async function check_if_point_lies_within_circle(lat,lon, range) {
+    const query = `{"query": {"field": "geojson", "geometry": {"shape": {"coordinates": [ ${lon}, ${lat}], "type": "circle","radius": "${range}mi"},"relation": "intersects"}}}`; 
+    return await axios.post('http://localhost:8094/api/index/geo_coordinates/query', query, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        auth: {
+            username: 'admin',
+            password: 'password'
+        }
+    }).then((res) => {
+        return res;
+    }).catch((err) => {
+        return err;
+    });
+};
+
+
 
 const NUM_PRODUCTS_PER_PAGE = 10;
 
@@ -68,10 +89,49 @@ const productController = {
     },
 
     getByDistance: async (req, res, next) => {
-        console.log("inside getByDistance");
-        console.log("params", req.params);
+        const page = req.query.page || 1;
+        const customer_id = req.query.customer_id;
+        const distance = req.query.distance || 10;
 
-        res.status(200).json({ message: "Not implemented" });
+        
+        const col = db.getCollection("users");
+        const user = await col.get(customer_id).then((result) => result).catch((err) => err);
+        if(user.error) return res.status(404).json({ message: "User not found" });
+        const [lat, lon] = [user.content.location.coordinates.latitude, user.content.location.coordinates.longitude];
+
+        const stores = await  check_if_point_lies_within_circle(lat, lon, distance * 100);
+        if(stores.error) return res.status(404).json({ message: "No stores found" }); // TODO: return empty array
+        const store_ids = stores["data"]["hits"].map((x) => x.id);
+        console.log("stores", stores);
+
+        const sto = db.getCollection("stores");
+        let product_ids = [];
+
+        for (const store_id of store_ids) {
+            const store = await sto.get(store_id).then((result) => result).catch((err) => err);
+            if(store.error) return res.status(404).json({ message: "Store not found" });
+            product_ids = [...product_ids, ...store.content.store_items.map((x) => x.product_id)];
+        }
+        
+        const prd = db.getCollection("products");
+        const products = [];
+        for(const product_id of product_ids) {
+            const product = await prd.get(product_id).then((result) => result).catch((err) => err);
+            if(product.error) return res.status(404).json({ message: "Product not found" });
+            products.push({
+                product : product.content,
+            });
+        }
+        
+        const total = stores["data"]["total_hits"];
+
+        const response = {
+            page: page,
+            total : total,
+            rows: products.slice(0,10)
+        }
+
+        res.status(200).json(response);
     }, 
 
     getByFTS: async (req, res, next) => {

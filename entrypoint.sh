@@ -230,6 +230,81 @@ curl -s -XPUT -H "Content-Type: application/json" \
   "sourceParams": {}
 }'
 
+curl -XPUT -H "Content-Type: application/json" \
+-u admin:password http://localhost:8094/api/index/geo_coordinates -d \
+'{
+  "type": "fulltext-index",
+  "name": "geo_coordinates",
+  "sourceType": "gocbcore",
+  "sourceName": "server",
+  "planParams": {
+    "maxPartitionsPerPIndex": 1024,
+    "indexPartitions": 1
+  },
+  "params": {
+    "doc_config": {
+      "docid_prefix_delim": "",
+      "docid_regexp": "",
+      "mode": "scope.collection.type_field",
+      "type_field": "type"
+    },
+    "mapping": {
+      "analysis": {},
+      "default_analyzer": "standard",
+      "default_datetime_parser": "dateTimeOptional",
+      "default_field": "_all",
+      "default_mapping": {
+        "dynamic": true,
+        "enabled": false
+      },
+      "default_type": "_default",
+      "docvalues_dynamic": false,
+      "index_dynamic": true,
+      "store_dynamic": false,
+      "type_field": "_type",
+      "types": {
+        "store.stores": {
+          "dynamic": true,
+          "enabled": true,
+          "properties": {
+            "geoarea": {
+              "dynamic": false,
+              "enabled": true,
+              "fields": [
+                {
+                  "include_in_all": true,
+                  "index": true,
+                  "name": "geoarea",
+                  "type": "geoshape"
+                }
+              ]
+            },
+            "geojson": {
+              "dynamic": false,
+              "enabled": true,
+              "fields": [
+                {
+                  "include_in_all": true,
+                  "index": true,
+                  "name": "geojson",
+                  "type": "geoshape"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "store": {
+      "indexType": "scorch",
+      "segmentVersion": 15
+    }
+  },
+  "sourceParams": {}
+}'
+
+
+
 
 
 # TODO: find out why this is needed in this order

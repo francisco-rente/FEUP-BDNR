@@ -164,7 +164,7 @@ const ProductList = () => {
         console.log("Distance changed to: " + newValue);
             
         const user = localStorage.getItem("userId");
-
+        console.log("user: " + user);
         if(!user) return;
 
         const params = new URLSearchParams({
@@ -174,19 +174,18 @@ const ProductList = () => {
         }); 
         const url = `http://localhost:3001/api/product/distance`;
 
-        await fetch(url,
+        await fetch(url + "?" + params,
             {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                }, 
-                params: params
+                },
             })
             .then((res) => res.json())
             .then((data) => {
                 console.log("data from handleDistanceChange", data);
-                //setSearchResults(data.rows);
-                //setTotalPages(+data.total);
+                setSearchResults(data.rows);
+                setTotalPages(+data.total);
             }).catch((err) => console.log(err));
 
         setDistanceInterval(newValue);
