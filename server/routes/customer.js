@@ -11,6 +11,9 @@ router.get('/:id', customerController.getById);
 // POST /api/customer/login
 router.post('/login', customerController.login);
 
+// POST were it passes the following paranms in the body: customer_id, product_id, review_id into the function deleteReview
+router.post('/deleteReview/', customerController.deleteReview);
+
 // POST /api/store
 //router.post('/', storeController.create);
 

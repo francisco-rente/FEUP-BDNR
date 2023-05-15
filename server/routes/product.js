@@ -15,5 +15,4 @@ router.get('/:id/stores', productController.getStoresByProductId);
 
 router.post('/:id/addReview', productController.addReview);
 
-
 module.exports = router;
