@@ -1,62 +1,119 @@
 const Customer = require("../models/customer");
 const Product = require("../models/product");
-
+couchbase = require('couchbase');
 const db = require("../db/database");
 
-
+const NUM_PRODUCTS_PER_PAGE = 10;
 
 const productController = {
-  getAll: async (req, res, next) => {
-    try {
-      console.log("params", req.query);
-      const distance = req.query.product_distance.split(",").map((x) => +x);
-      const quantity = req.query.product_quantity.split(",").map((x) => +x);
-      const price = req.query.product_price.split(",").map((x) => +x);
+    getAll: async (req, res, next) => {
+        try {
+            const distance = req.query.product_distance.split(",").map((x) => +x);
+            const quantity = req.query.product_quantity.split(",").map((x) => +x);
+            const price = req.query.product_price.split(",").map((x) => +x);
+            const page = req.query.page;
 
-      // TODO: add distance to query
-      const query = `SELECT * FROM server.store.products AS product WHERE product.product_id IN (SELECT RAW item.product_id FROM server.store.stores AS s UNNEST s.store_items AS item
-          WHERE item.price BETWEEN ${price[0]} AND ${price[1]} AND item.quantity BETWEEN ${quantity[0]} AND ${quantity[1]})
-          LIMIT 10
-          `;
+            const offset = (page - 1) * NUM_PRODUCTS_PER_PAGE;
 
-      console.log("query", query);
+            // TODO: add distance to query
+            const query = `SELECT * FROM server.store.products AS product WHERE product.product_id IN (SELECT RAW item.product_id FROM server.store.stores AS s UNNEST s.store_items AS item
+          WHERE item.price BETWEEN ${price[0]} AND ${price[1]} AND item.quantity BETWEEN ${quantity[0]} AND ${quantity[1]}) LIMIT ${NUM_PRODUCTS_PER_PAGE} OFFSET ${offset};`
 
-      const scope = db.getScope();
-      const products = await scope.query(query, (err, result) => {
-        if (err) {
-          console.log("Error in Store.findAll");
-          return err;
-        } else {
-          console.log("Store.findAll");
-          console.log("result", result);
-          return result;
+            const count_query = `SELECT COUNT(*) FROM server.store.products AS product WHERE product.product_id IN (SELECT RAW item.product_id FROM server.store.stores AS s UNNEST s.store_items AS item
+          WHERE item.price BETWEEN ${price[0]} AND ${price[1]} AND item.quantity BETWEEN ${quantity[0]} AND ${quantity[1]});`;
+
+
+            const scope = db.getScope();
+
+            const product_count = await scope.query(count_query, (e, r) => e ? e : r);
+            if(product_count.error) res.status(404).json({ message: 'cannot calculate total products' });
+
+            const products = await scope.query(query
+                , (err, result) => {
+                    if (err) {
+                        return err;
+                    } else {
+                        console.log("Store.findAll");
+                        console.log("result", result);
+                        return result;
+                    }
+                });
+
+            products.page = page;
+            products.total = Math.ceil(product_count.rows[0].$1 / NUM_PRODUCTS_PER_PAGE);
+            res.status(200).json(products);
+        } catch (err) {
+            next(err);
         }
-      });
-      
-      res.status(200).json(products);
-    } catch (err) {
-      next(err);
-    }
-  },
-  getById: async (req, res, next) => {
-      console.log("params", req.params);
-      try {
-          console.log("params", req.params);
-          const product = await Product.findById(req.params.id).then((result) => result).catch(() => {
-              res.status(404).json({ message: 'product not found' });
-         });  
-        
-        // TODO:: Again with UNNEST, what's the difference from ANY or a simple JOIN? 
-        const query = `SELECT AVG(item.price) AS avg_price FROM server.store.stores AS s UNNEST s.store_items AS item WHERE item.product_id = "${req.params.id}"`;
-        const avg_price = await db.getScope().query(query, (err, result) => err ? err : result);
-        if (avg_price.error) res.status(404).json({ message: 'cannot calculate avg price' });
-        
-        product.content.avg_price = avg_price.rows[0].avg_price ?? "N/A";
-        res.status(200).json(product);
-      } catch (err) {
-          next(err);
-    }
-  },
+    },
+    getById: async (req, res, next) => {
+        console.log("inside getById");
+        console.log("params", req.params);
+        try {
+            console.log("params", req.params);
+            const product = await Product.findById(req.params.id).then((result) => result).catch(() => {
+                res.status(404).json({ message: 'product not found' });
+            });
+
+            // TODO:: Again with UNNEST, what's the difference from ANY or a simple JOIN?
+            const query = `SELECT AVG(item.price) AS avg_price FROM server.store.stores AS s UNNEST s.store_items AS item WHERE item.product_id = "${req.params.id}"`;
+            const avg_price = await db.getScope().query(query, (err, result) => err ? err : result);
+            if (avg_price.error) res.status(404).json({ message: 'cannot calculate avg price' });
+
+            product.content.avg_price = avg_price.rows[0].avg_price ?? "N/A";
+            product.total = 1;
+            res.status(200).json(product);
+        } catch (err) {
+            next(err);
+        }
+    },
+
+    getByFTS: async (req, res, next) => {
+        const search_query = req.query.q;
+        const page = req.query.page || 1;
+        const clu = await db.getCluster();
+        console.log("Page", page);
+        const OFFSET = (page - 1) * 10;
+
+
+        const qp = couchbase.SearchQuery.disjuncts(
+            couchbase.SearchQuery.match(search_query).field("product_category"),
+            couchbase.SearchQuery.match(search_query).field("product_title")
+        );
+
+        try {
+            const indexName = "productFTS";
+            const results = await clu.searchQuery(indexName, qp, { limit: 10, skip: OFFSET}).then((result) => result).catch((err) => err);
+            if(results.error) res.status(200).json({data: { rows: [] }});
+
+            const total = results.meta.metrics.total_rows;
+
+
+            const product_ids = results.rows.map((row) => row.id);
+
+            if(total === 0) return res.status(200).json({data: { rows: [] }});
+            if(page > Math.ceil(total / 10)) return res.status(404).json({ message: "Page not found" });
+
+
+            console.log("product_ids", product_ids);
+            const col = db.getCollection("products");
+            const products = await product_ids.map((id) => col.get(id).then((result) => result).catch((err) => err));
+
+
+            await Promise.all(products).then((values) => {
+                const res_products = {
+                    total: Math.ceil(total / 10),
+                    rows: values.map((row) => {return { product : row.value }}),
+                }
+                console.log("res_products", res_products);
+                res.status(200).json(res_products);
+            }).catch(() => res.status(404).json({ message: "Error getting products" }));
+
+
+        } catch (err) {
+            next(err);
+    }},
+
     getStoresByProductId: async (req, res, next) => {
         const productId = req.params.id;
         console.log("Get stores by product id", productId);
@@ -68,12 +125,12 @@ const productController = {
             const scope = db.getScope();
             await scope.query(query, (err, result) => err ? err : result)
                 .then((result) => {
-                res.status(200).json(result);
-            }
-            ).catch((err) => {
-                res.status(404).json({ message: 'product not found' });
-            }
-            );
+                    res.status(200).json(result);
+                }
+                ).catch((err) => {
+                    res.status(404).json({ message: 'product not found' });
+                }
+                );
         }
         catch (err) {
             next(err);
@@ -101,7 +158,7 @@ const productController = {
 
         const user = await Customer.findById(user_id).then((result) => result.content.name).catch(() => {
             res.status(404).json({ message: 'user not found' });});
-    
+
 
         const date = new Date();
         const new_review_date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
@@ -154,7 +211,7 @@ const productController = {
             const new_user = {
                 ...user.content,
                 products_reviews_pairs : user.content.products_reviews_pairs.concat(
-                [{ product_id: productId, review_id: new_review_id }])
+                    [{ product_id: productId, review_id: new_review_id }])
             }
             console.log("new_user", new_user);
             await ctx.replace(user, new_user);
@@ -164,26 +221,19 @@ const productController = {
 
             if (!product) throw new Error("Product not found");
 
-           const new_product = {
-               ...product.content,
-               reviews: product.content.reviews.concat([new_review])
-           }
-            console.log("new_product", new_product);
+            const new_product = {
+                ...product.content,
+                reviews: product.content.reviews.concat([new_review])
+            }
             await ctx.replace(product, new_product);
-          //  const update_query = "UPDATE server.store.products AS p SET p.reviews = ARRAY_APPEND(p.reviews, " + JSON.stringify(new_review) + ") WHERE p.product_id = '" + parseInt(productId) + "';";
-          //  console.log("update_query", update_query);
-          //  const res = await ctx.query(update_query);
-            //if(res.meta().status !== 200) throw new Error("Product not found");
-
-
         }).then((result) => {
             res.status(200).json({ message: 'review added' });    
             console.log("Transaction result", result);
         })
             .catch((err) => {
-            console.log("Error in addReview", err);
-            res.status(404).json({ message: 'product not found' });
-        });
+                console.log("Error in addReview", err);
+                res.status(404).json({ message: 'product not found' });
+            });
 
         // TODO: compare alternatives
 

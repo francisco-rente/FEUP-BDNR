@@ -19,7 +19,7 @@ echo "User created"
 couchbase-cli bucket-create -c localhost:8091 --username admin --password password --bucket server --bucket-type couchbase --bucket-ramsize 100 --bucket-replica 1 --enable-flush 1 #--durability-level majority
 
 # create event bucket
-couchbase-cli bucket-create -c localhost:8091 --username admin --password password --bucket eventing_bucket --bucket-type couchbase --enable-flush 1 --bucket-ramsize 100 --bucket-replica 1 
+couchbase-cli bucket-create -c localhost:8091 --username admin --password password --bucket eventing_bucket --bucket-type couchbase --enable-flush 1 --bucket-ramsize 100 --bucket-replica 1
 
 # create event scope
 couchbase-cli collection-manage -c localhost:8091 --username admin --password password --bucket eventing_bucket --create-scope eventing
@@ -29,8 +29,6 @@ couchbase-cli collection-manage -c localhost:8091 --username admin --password pa
 couchbase-cli collection-manage -c localhost:8091 --username admin --password password --bucket server --create-collection store.products
 couchbase-cli collection-manage -c localhost:8091 --username admin --password password --bucket server --create-collection store.stores
 couchbase-cli collection-manage -c localhost:8091 --username admin --password password --bucket server --create-collection store.users
-
-
 
 # import  /opt/couchbase/var/lib/couchbase/input/stores_with_items.json
 cbimport json -c localhost:8091 -u admin -p password -b server -d file:///opt/couchbase/var/lib/couchbase/input/stores_with_items.json --scope-collection-exp store.stores -f list -g %store_id% -t 4
@@ -78,13 +76,163 @@ cbq -e localhost:8093 -u admin -p password -s "CREATE INDEX customer_id ON serve
 
 
 # create eventing function
-couchbase-cli eventing-function-setup -c localhost:8091 --username admin --password password --import --file /opt/couchbase/var/lib/couchbase/input/reviews_eventing.json 
+couchbase-cli eventing-function-setup -c localhost:8091 --username admin --password password --import --file /opt/couchbase/var/lib/couchbase/input/reviews_eventing.json
 
-# deploy 
+# deploy
 couchbase-cli eventing-function-setup -c localhost:8091 --username admin --password password --deploy --name reviews_eventing
 
 
-# TODO: find out why this is needed in this order 
+
+# create index
+
+
+curl -s -XPUT -H "Content-Type: application/json" \
+-u admin:password http://localhost:8094/api/index/review_bodyIndex -d \
+'{
+ "name": "review_bodyIndex",
+ "type": "fulltext-index",
+ "params": {
+  "doc_config": {
+   "docid_prefix_delim": "",
+   "docid_regexp": "",
+   "mode": "scope.collection.type_field",
+   "type_field": "type"
+  },
+  "mapping": {
+   "default_analyzer": "standard",
+   "default_datetime_parser": "dateTimeOptional",
+   "default_field": "_all",
+   "default_mapping": {
+    "dynamic": true,
+    "enabled": false
+   },
+   "default_type": "_default",
+   "docvalues_dynamic": false,
+   "index_dynamic": true,
+   "store_dynamic": false,
+   "type_field": "_type",
+   "types": {
+    "store.products": {
+     "dynamic": true,
+     "enabled": true,
+     "properties": {
+      "reviews": {
+       "dynamic": false,
+       "enabled": true,
+       "properties": {
+        "review_body": {
+         "enabled": true,
+         "dynamic": false,
+         "fields": [
+          {
+           "docvalues": true,
+           "include_in_all": true,
+           "include_term_vectors": true,
+           "index": true,
+           "name": "review_body",
+           "store": true,
+           "type": "text"
+          }
+         ]
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "store": {
+   "indexType": "scorch",
+   "segmentVersion": 15
+  }
+ },
+ "sourceType": "gocbcore",
+ "sourceName": "server",
+ "sourceParams": {},
+ "planParams": {
+  "maxPartitionsPerPIndex": 1024,
+  "indexPartitions": 1,
+  "numReplicas": 0
+ }
+}'
+
+
+curl -s -XPUT -H "Content-Type: application/json" \
+-u admin:password http://localhost:8094/api/index/productFTS -d \
+'{
+  "type": "fulltext-index",
+  "name": "productFTS",
+  "sourceType": "gocbcore",
+  "sourceName": "server",
+  "planParams": {
+    "maxPartitionsPerPIndex": 1024,
+    "indexPartitions": 1
+  },
+  "params": {
+    "doc_config": {
+      "docid_prefix_delim": "",
+      "docid_regexp": "",
+      "mode": "scope.collection.type_field",
+      "type_field": "type"
+    },
+    "mapping": {
+      "analysis": {},
+      "default_analyzer": "standard",
+      "default_datetime_parser": "dateTimeOptional",
+      "default_field": "_all",
+      "default_mapping": {
+        "dynamic": false,
+        "enabled": false
+      },
+      "default_type": "_default",
+      "docvalues_dynamic": false,
+      "index_dynamic": false,
+      "store_dynamic": false,
+      "type_field": "_type",
+      "types": {
+        "store.products": {
+          "dynamic": false,
+          "enabled": true,
+          "properties": {
+            "product_category": {
+              "dynamic": false,
+              "enabled": true,
+              "fields": [
+                {
+                  "analyzer": "en",
+                  "index": true,
+                  "name": "product_category",
+                  "type": "text"
+                }
+              ]
+            },
+            "product_title": {
+              "dynamic": false,
+              "enabled": true,
+              "fields": [
+                {
+                  "analyzer": "en",
+                  "index": true,
+                  "name": "product_title",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "store": {
+      "indexType": "scorch",
+      "segmentVersion": 15
+    }
+  },
+  "sourceParams": {}
+}'
+
+
+
+# TODO: find out why this is needed in this order
 
 # keep container running
 tail -f /dev/null
