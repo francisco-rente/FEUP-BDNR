@@ -6,10 +6,10 @@ OUTPUT_FILE = './datasets/json/products_updated.json'
 
 
 def main():
-    with open(USER_FILE, 'r') as f:
+    with open(USER_FILE, 'r', encoding='utf-8') as f:
         users = json.load(f)
 
-    with open(PRODUCT_FILE, 'r') as f:
+    with open(PRODUCT_FILE, 'r', encoding='utf-8') as f:
         products = json.load(f)
 
     names = {}

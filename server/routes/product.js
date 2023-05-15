@@ -5,22 +5,14 @@ const productController = require('../controllers/product');
 // GET /api/store
 router.get('/', productController.getAll);
 
+
+router.get('/fts', productController.getByFTS);
+
 // GET /api/product/id
 router.get('/:id', productController.getById);
 
 router.get('/:id/stores', productController.getStoresByProductId);
 
 router.post('/:id/addReview', productController.addReview);
-
-//router.post('/:id/editReview', productController.editReview);
-
-// POST /api/store
-//router.post('/', storeController.create);
-
-// PUT /api/store/:id
-//router.put('/:id', storeController.update);
-
-// DELETE /api/store/:id
-//router.delete('/:id', storeController.delete);
 
 module.exports = router;

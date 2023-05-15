@@ -2,9 +2,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const storeRoutes = require('./routes/store');
 const cors = require('cors');
+
+
 // const errorMiddleware = require('./middlewares/error');
 const customerRoutes = require('./routes/customer');
 const productRoutes = require('./routes/product');
+const reviewRoutes = require('./routes/review');
 const database = require('./db/database');
 // Set up the server
 const app = express();
@@ -21,6 +24,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/api/store', storeRoutes);
 app.use('/api/customer', customerRoutes);
 app.use('/api/product', productRoutes);
+app.use('/api/review', reviewRoutes);
 
 // Use error middleware to handle errors
 //app.use(errorMiddleware);

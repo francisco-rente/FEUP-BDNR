@@ -4,5 +4,6 @@ module.exports = {
     dbPassword: 'password',
     bucketName: 'server',
     scopeName: 'store',
+    productCollectionName: 'products',
   };
   

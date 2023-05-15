@@ -21,7 +21,7 @@ function App() {
      {/*<Route path="/store:id" element={<Ind/>} */}
       <Route path="/productList" element={<ProductList/>} />
       <Route path="/reviewList" element={<ReviewList/>} />
-      <Route path="/customer" element={<Customer/>} />
+    {/*  <Route path="/customer" element={<Customer/>} />*/}
       <Route path="/storeList" element={<StoreList/>} />
       <Route path="*" element={<h1>Not Found</h1>} />
       <Route path="/profile" element={<Profile/>} />

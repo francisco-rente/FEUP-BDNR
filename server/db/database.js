@@ -1,5 +1,7 @@
 var couchbase = require('couchbase')
 const config = require('../config');
+// const { review_bodyIndex } = require('./indexes/review_body');
+//const { productSearchIndex } = require('./indexes/productSearch');
 
 var _bucket;
 var _cluster;
@@ -12,15 +14,20 @@ module.exports = {
             const cluster = await couchbase.connect(
                 config.dbUrl, {
                     username: config.dbUsername,
-                    password: config.dbPassword
+                    password: config.dbPassword,
+                    transactions: {
+//                        durabilityLevel: couchbase.DurabilityLevel.Majority
+                    }
                 });
             _cluster = cluster;
             _bucket = cluster.bucket(config.bucketName); 
+
             return callback(null);
         } catch (err) {
             console.log("Error connecting to Couchbase cluster");
             return callback(err);
         }
+
     }, 
     getInfo() {
         console.log("Getting info");
@@ -35,7 +42,7 @@ module.exports = {
     getBucket: () => _bucket,
     getScope: () =>  _bucket.scope(config.scopeName) ?? null,  
     getCollection: (collectionName) => {
-        console.log("Getting collection: " + collectionName);
+      //  console.log("Getting collection: " + collectionName);
         const scope = _bucket.scope("store");
         const collection = scope.collection(collectionName);
         console.log(collection);

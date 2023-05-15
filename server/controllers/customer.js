@@ -57,96 +57,58 @@ const customerController = {
   /* delete_review: async (req, res, next) =>{
     //extract review_id from request
     review_id = request.args.get('review_id')
-    
+
     # get the document for the review
     query = QueryString('SELECT * FROM `bucket_name` WHERE review_id = $1')
     rows = cluster.query(query, review_id)
-    
+
     # check if the review exists
     if len(rows) == 0:
         return {'message': 'Review not found.'}, 404
-    
+
     review_doc = rows[0]
-    
+
     # delete the review from the product record
     product_id = review_doc['product_id']
     product_query = QueryString('UPDATE `bucket_name` SET reviews = ARRAY_REMOVE(reviews, OBJECT { "review_id": $1 }) WHERE product_id = $2')
     cluster.query(product_query, review_id, product_id)
-    
+
     # delete the review from the customer record
     customer_id = review_doc['customer_id']
     customer_query = QueryString('UPDATE `bucket_name` SET products_reviews_pairs = ARRAY_REMOVE(products_reviews_pairs, OBJECT { "review_id": $1 }) WHERE customer_id = $2')
     cluster.query(customer_query, review_id, customer_id)
-    
+
     # delete the review document
     delete_query = QueryString('DELETE FROM `bucket_name` WHERE review_id = $1')
     cluster.query(delete_query, review_id)
-    
+
     return {'message': 'Review deleted successfully.'}, 200}
     */
 
   //deleting a review from a product and customer
-  deleteReview: async (req, res, next) => {
-    try {
-      const product_id = req.body.product_id;
-      const customer_id = req.body.customer_id;
-      const review_id = req.body.review_id;
-      console.log("review_id", review_id, "product_id", product_id, "customer_id", customer_id);
-      const query = `UPDATE server.store.products SET reviews = ARRAY v FOR v IN reviews WHEN v.review_id != "${review_id}" END WHERE product_id = "${product_id}"`;
-      console.log("query", query);
-      const scope = db.getScope();
-      const data = await scope.query(query, (err, result) =>
-        err ? err : result
-      );
-      console.log("data", data);
-      if (data.error) res.status(404).json({ message: "Review not found" });
-      const query2 =`UPDATE server.store.users SET  products_reviews_pairs = ARRAY v FOR v IN products_reviews_pairs WHEN v.review_id != "${review_id}" END WHERE customer_id = ${customer_id}`;
-      const data2 = await scope.query(query2, (err, result) =>
-        err ? err : result
-      );
-      if (data2.error) res.status(404).json({ message: "Review not found" });
-    } catch (err) {
-      next(err);
+    deleteReview: async (req, res, next) => {
+        try {
+            const product_id = req.body.product_id;
+            const customer_id = req.body.customer_id;
+            const review_id = req.body.review_id;
+            console.log("review_id", review_id, "product_id", product_id, "customer_id", customer_id);
+            const query = `UPDATE server.store.products SET reviews = ARRAY v FOR v IN reviews WHEN v.review_id != "${review_id}" END WHERE product_id = "${product_id}"`;
+            console.log("query", query);
+            const scope = db.getScope();
+            const data = await scope.query(query, (err, result) =>
+                err ? err : result
+            );
+            console.log("data", data);
+            if (data.error) res.status(404).json({message: "Review not found"});
+            const query2 = `UPDATE server.store.users SET  products_reviews_pairs = ARRAY v FOR v IN products_reviews_pairs WHEN v.review_id != "${review_id}" END WHERE customer_id = ${customer_id}`;
+            const data2 = await scope.query(query2, (err, result) =>
+                err ? err : result
+            );
+            if (data2.error) res.status(404).json({message: "Review not found"});
+        } catch (err) {
+            next(err);
+        }
     }
-  },
-
-  /*
-  create: async (req, res, next) => {
-    try {
-      const customer = await Store.create(req.body);
-      res.status(201).json(book);
-    } catch (err) {
-      next(err);
-    }
-  },
-
-
-  update: async (req, res, next) => {
-    try {
-      const store = await Store.update(req.params.id, req.body);
-      if (!store) {
-        res.status(404).json({ message: 'store not found' });
-      } else {
-        res.json(store);
-      }
-    } catch (err) {
-      next(err);
-    }
-  },
-
-  delete: async (req, res, next) => {
-    try {
-      const result = await Store.delete(req.params.id);
-      if (result.cas) {
-        res.sendStatus(204);
-      } else {
-        res.status(404).json({ message: 'store not found' });
-
-    } catch (err) {
-      next(err);
-    }
-  }
-  */
 };
 
 module.exports = customerController;
