@@ -1,22 +1,6 @@
 import MyNavbar from "../components/MyNavbar";
 import {Fragment, useState, useEffect} from "react";
-
-
-const StoreCard = (props) => {
-    const store = props.store.stores; 
-    const {name, contact, location, store_id, store_items} = store;
-    return(       
-        <div className="col-4">
-            <div className="card" style={{width: "18rem"}}>
-                <div className="card-body">
-                    <h5 className="card-title">{name}</h5>
-                    <p className="card-text">{contact.email}</p>
-                </div>
-            </div>
-        </div>
-    )
-};
-
+import StoreCard from "../components/StoreCard";
 
 const StoresList = (props) => {
     const stores = props.stores;
@@ -25,7 +9,10 @@ const StoresList = (props) => {
         <div className="row">
             {stores.map((store, index) => (
                 <Fragment key={`store_${index}`}>
-                    <StoreCard store={store}></StoreCard>
+                    <StoreCard 
+                    store={store.stores}>
+                    </StoreCard>
+                    
                 </Fragment>
             ))}
         </div>
@@ -39,7 +26,7 @@ const StoreList= () => {
 
     useEffect(() => async () => {
         fetch("http://localhost:3001/api/store").then((res) => res.json()).then((data) => {
-            console.log("data", data);
+            console.log("data from request", data);
             setStores(data.rows);
         }).catch((err) => {
             console.log("err", err);
@@ -49,7 +36,6 @@ const StoreList= () => {
     return (
         <Fragment>
             <MyNavbar hasSearchBar={false} style={{height:"50px"}}></MyNavbar>
-            Stores
             <StoresList stores={stores}></StoresList>
         </Fragment>);
 };

@@ -41,44 +41,28 @@ const Store = {
             });
         });
     },
-    /*
-  create: (book) => {
-    return new Promise((resolve, reject) => {
-      const id = book.title.replace(/\s/g, '-').toLowerCase();
-      store_collection.insert(id, book, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result.value);
-        }
-      });
-    });
-  },
 
-  update: (id, book) => {
-    return new Promise((resolve, reject) => {
-      store_collection.replace(id, book, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result.value);
-        }
-      });
-    });
-  },
 
-  delete: (id) => {
-    return new Promise((resolve, reject) => {
-      store_collection.remove(id, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result);
-        }
-      });
-    });
-  }
-  */
+    applyDiscount: (id, discount) => new Promise((resolve, reject) =>{
+        const scope = db.getScope();   
+        console.log("scope", scope);
+        console.log("id", id);
+        console.log("discount", discount);
+
+
+ const query = `UPDATE server.store.stores store SET s.price = s.price * (1 - ${parseInt(discount)}/100) FOR s IN store_items END WHERE store.store_id = ${id}`; 
+
+        scope.query( query , (err, result) => {
+
+            if (err) {
+                console.log("Error in Store.applyDiscount");
+                reject(err);
+            } else {
+                console.log("Store.applyDiscount");
+                resolve(result);
+            }
+        });
+    }),
 }
 
 module.exports = Store;

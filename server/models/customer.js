@@ -56,44 +56,6 @@ const Customer = {
             users.get(id, (err, result) => err ? reject(err) : resolve(result));
         }
     )},
-/*
-  create: (book) => {
-    return new Promise((resolve, reject) => {
-      const id = book.title.replace(/\s/g, '-').toLowerCase();
-      bucket.insert(id, book, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result.value);
-        }
-      });
-    });
-  },
-
-  update: (id, book) => {
-    return new Promise((resolve, reject) => {
-      bucket.replace(id, book, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result.value);
-        }
-      });
-    });
-  },
-
-  delete: (id) => {
-    return new Promise((resolve, reject) => {
-      bucket.remove(id, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result);
-        }
-      });
-    });
-  }
-  */
 }
 
 module.exports = Customer;

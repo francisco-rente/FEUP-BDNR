@@ -38,7 +38,6 @@ const Product = {
                     console.log("Error in Store.findAll");
                     reject(err);
                 } else {
-                    console.log("Store.findAll");
                     resolve(result);
                 }
             })}); 
