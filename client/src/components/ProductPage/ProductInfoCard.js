@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
 
 export const ProductInfoCard = ( props ) => {
     
-
+    console.log("props", props);
     const { product_title, product_category, marketplace, avg_rating, avg_price} = props.product;
     return (
         <Card variant="outlined" className={useStyles().root} >

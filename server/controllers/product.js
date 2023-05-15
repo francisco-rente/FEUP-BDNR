@@ -25,9 +25,9 @@ const productController = {
 
             const scope = db.getScope();
 
-            const product_count = await scope.query(count_query, (e, r) => e ? e : r); 
+            const product_count = await scope.query(count_query, (e, r) => e ? e : r);
             if(product_count.error) res.status(404).json({ message: 'cannot calculate total products' });
-            
+
             const products = await scope.query(query
                 , (err, result) => {
                     if (err) {
@@ -39,7 +39,7 @@ const productController = {
                     }
                 });
 
-            products.page = page; 
+            products.page = page;
             products.total = Math.ceil(product_count.rows[0].$1 / NUM_PRODUCTS_PER_PAGE);
             res.status(200).json(products);
         } catch (err) {
@@ -53,16 +53,14 @@ const productController = {
             console.log("params", req.params);
             const product = await Product.findById(req.params.id).then((result) => result).catch(() => {
                 res.status(404).json({ message: 'product not found' });
-            });  
+            });
 
-            // TODO:: Again with UNNEST, what's the difference from ANY or a simple JOIN? 
+            // TODO:: Again with UNNEST, what's the difference from ANY or a simple JOIN?
             const query = `SELECT AVG(item.price) AS avg_price FROM server.store.stores AS s UNNEST s.store_items AS item WHERE item.product_id = "${req.params.id}"`;
             const avg_price = await db.getScope().query(query, (err, result) => err ? err : result);
             if (avg_price.error) res.status(404).json({ message: 'cannot calculate avg price' });
 
             product.content.avg_price = avg_price.rows[0].avg_price ?? "N/A";
-
-            product.content.avg_rating = 3.5;
             product.total = 1;
             res.status(200).json(product);
         } catch (err) {
@@ -71,7 +69,7 @@ const productController = {
     },
 
     getByFTS: async (req, res, next) => {
-        const search_query = req.query.q; 
+        const search_query = req.query.q;
         const page = req.query.page || 1;
         const clu = await db.getCluster();
         console.log("Page", page);
@@ -81,26 +79,26 @@ const productController = {
         const qp = couchbase.SearchQuery.disjuncts(
             couchbase.SearchQuery.match(search_query).field("product_category"),
             couchbase.SearchQuery.match(search_query).field("product_title")
-        ); 
+        );
 
         try {
             const indexName = "productFTS";
             const results = await clu.searchQuery(indexName, qp, { limit: 10, skip: OFFSET}).then((result) => result).catch((err) => err);
             if(results.error) res.status(200).json({data: { rows: [] }});
 
-            const total = results.meta.metrics.total_rows;        
+            const total = results.meta.metrics.total_rows;
 
 
             const product_ids = results.rows.map((row) => row.id);
-    
+
             if(total === 0) return res.status(200).json({data: { rows: [] }});
             if(page > Math.ceil(total / 10)) return res.status(404).json({ message: "Page not found" });
-           
+
 
             console.log("product_ids", product_ids);
             const col = db.getCollection("products");
             const products = await product_ids.map((id) => col.get(id).then((result) => result).catch((err) => err));
-            
+
 
             await Promise.all(products).then((values) => {
                 const res_products = {
@@ -141,7 +139,7 @@ const productController = {
     addReview: async (req, res, next) => {
         const { review_headline, review_body, star_rating, user_id } = req.body;
         const productId = req.params.id;
-
+        
         // TODO: Super shady fix (specially considering the Listing page), look into alternatives
         // https://docs.couchbase.com/php-sdk/current/concept-docs/documents.html#counters
         // https://github.com/twitter-archive/snowflake
@@ -183,30 +181,30 @@ const productController = {
             product_id: productId,
             review_id: new_review_id
         }; 
-
+        
         console.log(db.getCluster());
 
         const user_collection = db.getCollection("users");
         const product_collection = db.getCollection("products");
 
         await db.getCluster().transactions().run(async (ctx) => {
-
+            
             /* TODO: Check this and see if transaction level is necessary
              * When using a single node cluster (for example, during development),
              * the default number of replicas for a newly created bucket is 1. 
              * If left at this default, all key-value writes performed with durability 
              * will fail with a DurabilityImpossibleError*/
-
+            
             const user = await ctx.get(user_collection, user_id);
 
             if (!user) throw new Error("User not found");
-
+            
             console.log("user", user.content.products_reviews_pairs); 
             console.log("productId", productId);
             // check if user already reviewed the product
             const already_reviewed = user.content.products_reviews_pairs.some(
                 (pair) => pair.product_id === productId);
-
+            
             console.log("already_reviewed", already_reviewed);
             if (already_reviewed) throw new Error("User already reviewed the product");
 
@@ -239,26 +237,26 @@ const productController = {
 
         // TODO: compare alternatives
 
-        //  // TODO: fix it and check if easier is possible
-        //  const update_user_query = "UPDATE server.store.users AS c SET c.reviews = ARRAY_APPEND(c.reviews, " + JSON.stringify(user_review_pair) + ") WHERE c.customer_id = '" + user_id + "';";
-        //  const query = "UPDATE server.store.products AS p SET p.reviews = ARRAY_APPEND(p.reviews, " + JSON.stringify(new_review) + ") WHERE p.product_id = '" + parseInt(productId) + "';";
-        //  
-        //  // merge both into a single transaction
-        //  // ele não gosta disto "SET TRANSACTION ISOLATION LEVEL READ COMMITTED;\n" e "SAVEPOINT sv1", mas era fixe ter
-        //  const transaction = `BEGIN WORK; ${update_user_query} ${query} COMMIT WORK;`;
+      //  // TODO: fix it and check if easier is possible
+      //  const update_user_query = "UPDATE server.store.users AS c SET c.reviews = ARRAY_APPEND(c.reviews, " + JSON.stringify(user_review_pair) + ") WHERE c.customer_id = '" + user_id + "';";
+      //  const query = "UPDATE server.store.products AS p SET p.reviews = ARRAY_APPEND(p.reviews, " + JSON.stringify(new_review) + ") WHERE p.product_id = '" + parseInt(productId) + "';";
+      //  
+      //  // merge both into a single transaction
+      //  // ele não gosta disto "SET TRANSACTION ISOLATION LEVEL READ COMMITTED;\n" e "SAVEPOINT sv1", mas era fixe ter
+      //  const transaction = `BEGIN WORK; ${update_user_query} ${query} COMMIT WORK;`;
 
-        //  console.log("transaction", transaction);
-        //  const scope = db.getScope();
-        //  const insertReview = await new Promise((resolve, reject) => {
-        //      scope.query(transaction, (err, result) => err ? err : result).
-        //          then((result) => {
-        //              console.log("result", result);
-        //              resolve(result);
-        //          }).catch((err) => {
-        //              console.log("err", err);
-        //              reject(err);
-        //          });
-        //  })
+      //  console.log("transaction", transaction);
+      //  const scope = db.getScope();
+      //  const insertReview = await new Promise((resolve, reject) => {
+      //      scope.query(transaction, (err, result) => err ? err : result).
+      //          then((result) => {
+      //              console.log("result", result);
+      //              resolve(result);
+      //          }).catch((err) => {
+      //              console.log("err", err);
+      //              reject(err);
+      //          });
+      //  })
     },
 
   /*

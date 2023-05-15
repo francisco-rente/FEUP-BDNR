@@ -29,6 +29,20 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
+const ReviewButton = ({product, handleClickOpen, userId}) => {
+    
+    if(product === null || userId === null || product.reviews === undefined) return <></>;
+    const userHasReviewed = product.reviews.some((review) => review.customer_id == parseInt(userId));
+    if(userHasReviewed) return <></>;
+
+    return (
+        <Box align="" justifyContent={"center"} style={{marginTop: "29px"}}>
+            <Button variant="contained" color="primary" onClick={handleClickOpen} align="center">
+                Add Review
+            </Button>
+        </Box>)
+}
+
 
 const Product = () => {
     const { id } = useParams();
@@ -36,7 +50,7 @@ const Product = () => {
     const [stores, setStores] = useState([]);
     const [openCreateReviewDialog, setOpenCreateReviewDialog] = useState(false);
     const [refreshReviews, setRefreshReviews] = useState(false);
-
+    const userId = localStorage.getItem("userId") || null;
     const refreshReviewsCallback = (value) => {
         // For now it works, but is it supposed to be like this? Does the value get set to false after this?
         // Also weird because it refreshes products, should we simply add it when the req is successful?
@@ -96,11 +110,8 @@ const Product = () => {
                         }>Reviews:</Typography>
                         <Divider variant="middle" />
                         <ProductReviewList reviews={product.reviews} /> 
-                        <Box align="" justifyContent={"center"} style={{marginTop: "29px"}}>
-                            <Button variant="contained" color="primary" onClick={handleClickOpen} align="center">
-                                Add Review
-                            </Button>
-                        </Box>
+
+                        <ReviewButton product={product} userId={userId} handleClickOpen={handleClickOpen} />
                     </Grid> 
                 </Grid>
             </Box>
