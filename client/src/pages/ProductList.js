@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import SearchBar from "../components/SearchBar";
 import Typography from "@material-ui/core/Typography";
 import { List, ListItem, Divider } from "@material-ui/core";
-import FilterSlider from "../components/FilterSlider";
+import {RegularSlider, FilterSlider} from "../components/FilterSlider";
 import ProductCard from "../components/ProductCard";
 import { Grid } from "@material-ui/core";
 import Stack from '@mui/material/Stack';
@@ -25,17 +25,12 @@ const style = {
 };
 
 
-const FilterStack = ({ setDistanceInterval, setQuantityInterval, setPriceInterval }) => {
+const FilterStack = ({ setQuantityInterval, setPriceInterval }) => {
 
     return (
         <Stack spacing={2} sx={{ width: '100%' }}>
             <ListItem button>
-                <FilterSlider
-                    units="km"
-                    limit={100}
-                    step={50}
-                    onChange={(e) => setDistanceInterval(e.target.value)}
-                />
+
             </ListItem>
             <Divider />
             <ListItem button divider>
@@ -78,7 +73,8 @@ const Products = ({ searchResults }) => {
 
 const SEARCH_TYPE = {
     PRODUCT: "product/fts",
-    REVIEW: "review/fts"
+    REVIEW: "review/fts", 
+    DISTANCE: "product/distance",
 };
 
 
@@ -102,7 +98,6 @@ const ProductList = () => {
         console.log("price interval: " + priceInterval);
            const params = new URLSearchParams({
                q: "product_title:fts",
-               product_distance: distanceInterval,
                product_quantity: quantityInterval,
                product_price: priceInterval,
                page: reqPage,
@@ -151,7 +146,7 @@ const ProductList = () => {
     
   useEffect(
     () => {getProducts()},
-    [distanceInterval, quantityInterval, priceInterval]
+    [quantityInterval, priceInterval]
   );
 
     const handleSearch = (searchTerm) => {
@@ -163,6 +158,41 @@ const ProductList = () => {
         setPage(value);
         getProducts(value);
     }
+
+    const handleDistanceChange = async (event,newValue) => {
+        event.preventDefault();
+        console.log("Distance changed to: " + newValue);
+            
+        const user = localStorage.getItem("userId");
+
+        if(!user) return;
+
+        const params = new URLSearchParams({
+            page: page,
+            distance: newValue,
+            customer_id: user
+        }); 
+        const url = `http://localhost:3001/api/product/distance`;
+
+        await fetch(url,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                }, 
+                params: params
+            })
+            .then((res) => res.json())
+            .then((data) => {
+                console.log("data from handleDistanceChange", data);
+                //setSearchResults(data.rows);
+                //setTotalPages(+data.total);
+            }).catch((err) => console.log(err));
+
+        setDistanceInterval(newValue);
+    }
+
+
 
     return (
         <>
@@ -204,10 +234,31 @@ const ProductList = () => {
                     </Box>
                 </div>
 
+                <Box sx={{width: "50%", marginLeft: "25%", marginTop: "1%"}}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} md={6}>
+                            <Typography id="range-slider" gutterBottom>
+                                Radius
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <RegularSlider
+                                onChange={(e) => handleDistanceChange(e, e.target.value)}
+                                units="km"
+                                limit={100}
+                                step={25}
+                            />
+                        </Grid>
+                    </Grid>
+                </Box>
+
+
+
+
+
                 <Grid container spacing={3}>
                     <Grid item xs={12} md={4}>
                         <FilterStack
-                            setDistanceInterval={setDistanceInterval}
                             setQuantityInterval={setQuantityInterval}
                             setPriceInterval={setPriceInterval}
                         />

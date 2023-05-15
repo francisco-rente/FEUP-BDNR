@@ -8,7 +8,6 @@ const NUM_PRODUCTS_PER_PAGE = 10;
 const productController = {
     getAll: async (req, res, next) => {
         try {
-            const distance = req.query.product_distance.split(",").map((x) => +x);
             const quantity = req.query.product_quantity.split(",").map((x) => +x);
             const price = req.query.product_price.split(",").map((x) => +x);
             const page = req.query.page;
@@ -67,6 +66,13 @@ const productController = {
             next(err);
         }
     },
+
+    getByDistance: async (req, res, next) => {
+        console.log("inside getByDistance");
+        console.log("params", req.params);
+
+        res.status(200).json({ message: "Not implemented" });
+    }, 
 
     getByFTS: async (req, res, next) => {
         const search_query = req.query.q;
