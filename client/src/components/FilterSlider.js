@@ -20,6 +20,8 @@ function valuetext(value) {
   return `${value}°C`;
 }
 
+
+
 const FilterSlider = (props) => {
   const {onChange, units, limit, step} = props;
 
@@ -39,5 +41,33 @@ const FilterSlider = (props) => {
     </Box>
   );
 }
+    
+const RegularSlider = (props) => {
+    const {onChange, units, limit, step} = props;
+    
+    return (
+        <Box sx={{ width: 300 }}>
+        <Slider
+            getAriaLabel={() => `${units} range`}
+            defaultValue={0}
+            getAriaValueText={valuetext}
+            step={step}
+            valueLabelDisplay="auto"
+            marks={marks(0, limit, step, units)}
+            onChange={onChange}
+            min={0}
+            max={limit}
+        />
+        </Box>
+    );
+};
 
-export default FilterSlider;
+export {FilterSlider, RegularSlider};
+
+
+
+
+
+
+
+
