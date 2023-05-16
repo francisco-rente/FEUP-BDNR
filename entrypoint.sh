@@ -305,7 +305,7 @@ curl -XPUT -H "Content-Type: application/json" \
 
 
 
-
+echo "FINISHED SETTING UP COUCHBASE"
 
 # TODO: find out why this is needed in this order
 
