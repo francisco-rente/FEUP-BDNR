@@ -11,6 +11,11 @@ A store management system built on top of real-life reviews, using the react, ex
 - Pedro Pinheiro ([@PPinhas](https://github.com/PPinhas))
 
 
+## Project's architecture
+
+![Architecture](./assets/architecture.png)
+
+
 ## Database schema and available queries
 
 ![Database schema](./assets/DB_schema.drawio.png)
