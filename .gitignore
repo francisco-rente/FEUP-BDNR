@@ -1,4 +1,3 @@
-datasets/
 # Created by https://www.toptal.com/developers/gitignore/api/node,react
 # Edit at https://www.toptal.com/developers/gitignore?templates=node,react
 
@@ -12,8 +11,6 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
-*package-lock.json
-*package.json
 */yarn.lock
 *.lock
 *-lock.json
