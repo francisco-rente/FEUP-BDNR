@@ -41,7 +41,7 @@ Install docker and docker compose in your machine. Run docker compose to start t
 ```bash
 docker compose up
 ```
-Open the browser and go to `http://localhost:3000/` to access the application. The database is available at `http://localhost:8091/`.
+Open the browser and go to `http://localhost:3000/` to access the application. The database dashboard is available at `http://localhost:8091/`, with admin:password login.
 
 ## Some pictures of the application
 
