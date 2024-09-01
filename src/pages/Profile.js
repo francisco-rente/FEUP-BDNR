@@ -66,7 +66,7 @@ function Profile() {
 
     async function fetchUser(userId) {
       console.log("Calling fetchUser");
-      await fetch(`http://${process.env.REACT_APP_BACKEND_HOST}:3001/api/customer/${userId}`)
+      await fetch("http://localhost:3001/api/customer/" + userId)
         .then((response) => response.json())
         .then((data) => {
           if (data.error) navigate("/login");
@@ -99,8 +99,9 @@ function Profile() {
 
   if (!user) return null; // TODO: Fix this Suspense or loading here
 
+  //delete review function here knnowing route and params are  "http://localhost:3001/api/costumer/:customer_id/:product_id/deleteReview/:review_id'
   async function handleDeleteReview(review) {
-    await fetch(`http://${process.env.REACT_APP_BACKEND_HOST}:3001/api/customer/deleteReview/`, {
+    await fetch( "http://localhost:3001/api/customer/deleteReview/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -125,7 +126,7 @@ function Profile() {
       });
   };
 
-
+  
 
   const handleEditReview = (review) => {
     setEditReview(review);

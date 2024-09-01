@@ -17,34 +17,34 @@ function Form() {
         e.preventDefault();
         setError(false);
         const userIdInt = parseInt(userId);
-        if (!isNaN(userIdInt)) {
+        if(!isNaN(userIdInt)) {
             const user = await fetch(
-                `http://${process.env.REACT_APP_BACKEND_HOST}:3001/api/customer/login`,
+                'http://localhost:3001/api/customer/login',
                 {
                     method: 'POST',
-                    mode: 'cors',
+                    mode : 'cors',
                     headers: {
                         "Content-Type": "application/json",
                         "Access-Control-Allow-Origin": "*",
-                    },
-                    body: JSON.stringify({ userId: userIdInt })
+                    }, 
+                    body: JSON.stringify({userId: userIdInt})
                 }
             )
                 .then((res) => res.json()).then((data) => {
                     const isValid = data.content.customer_id
                         == userIdInt;
-                    if (isValid) {
+                    if(isValid){
                         localStorage.setItem("userId", userId);
                         navigate("/profile");
-                    }
-                    else {
+                    } 
+                    else{
                         setError(true);
                         console.log("Utilizador não encontrado");
                         setUserId("");
                     }
-                }).catch((err) => console.log(err));
+                }).catch( (err) => console.log(err));
         }
-        else {
+        else{
             setError(true);
             console.log("Utilizador não encontrado");
             setUserId("");
@@ -63,10 +63,10 @@ function Form() {
                 content={
                     <>
                         {error && ( // Display error message if error is true
-                            <Alert severity="error" style={{ marginBottom: 10 }}>
-                                <AlertTitle>Error</AlertTitle>
-                                Utilizador não encontrado
-                            </Alert>
+                        <Alert severity="error" style={{ marginBottom: 10 }}>
+                            <AlertTitle>Error</AlertTitle>
+                            Utilizador não encontrado
+                        </Alert>
                         )}
                         <form onSubmit={handleSubmit}>
                             <TextField
@@ -75,7 +75,7 @@ function Form() {
                                 onChange={handleTextChange}
                                 variant="outlined"
                             />
-                            <Button variant="contained" color="primary" type="submit" style={{ marginTop: 10 }}>
+                            <Button variant="contained" color="primary" type="submit" style={{marginTop: 10}}>
                                 Submit
                             </Button>
                         </form>

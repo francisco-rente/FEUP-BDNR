@@ -8,43 +8,41 @@ var _cluster;
 
 
 module.exports = {
-    startDB: async (callback) => {
+    startDB: async (callback) => {  
         console.log("Connecting to Couchbase cluster at: " + config.dbUrl);
-
-        try {
+        try{
             const cluster = await couchbase.connect(
                 config.dbUrl, {
-                username: config.dbUsername,
-                password: config.dbPassword,
-                transactions: {
-                    //                        durabilityLevel: couchbase.DurabilityLevel.Majority
-                }
-            });
+                    username: config.dbUsername,
+                    password: config.dbPassword,
+                    transactions: {
+//                        durabilityLevel: couchbase.DurabilityLevel.Majority
+                    }
+                });
             _cluster = cluster;
-            _bucket = cluster.bucket(config.bucketName);
+            _bucket = cluster.bucket(config.bucketName); 
+
             return callback(null);
         } catch (err) {
-            console.log("Error connecting to Couchbase cluster: " + err);
-            return callback("Error connecting to Couchbase cluster");
+            console.log("Error connecting to Couchbase cluster");
+            return callback(err);
         }
 
-
-
-    },
+    }, 
     getInfo() {
         console.log("Getting info");
         console.log("Opened bucket: " + config.bucketName);
-        const info = _cluster.buckets()
+        const info =  _cluster.buckets()
         console.log(info);
-        const info2 = _bucket.collections();
+        const info2 =  _bucket.collections(); 
         console.log("Collections: ");
         console.log(info2);
     },
     getCluster: () => _cluster,
     getBucket: () => _bucket,
-    getScope: () => _bucket.scope(config.scopeName) ?? null,
+    getScope: () =>  _bucket.scope(config.scopeName) ?? null,  
     getCollection: (collectionName) => {
-        //  console.log("Getting collection: " + collectionName);
+      //  console.log("Getting collection: " + collectionName);
         const scope = _bucket.scope("store");
         const collection = scope.collection(collectionName);
         console.log(collection);

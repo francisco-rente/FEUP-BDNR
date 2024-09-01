@@ -65,7 +65,7 @@ function Navbar() {
 
     async function fetchUser(userId) {
       console.log("Calling fetchUser");
-      await fetch(`http://${process.env.REACT_APP_BACKEND_HOST}:3001/api/customer/${userId}`)
+      await fetch("http://localhost:3001/api/customer/" + userId)
         .then((response) => response.json())
         .then((data) => {
           if (data.error) navigate("/login");
@@ -95,7 +95,7 @@ function Navbar() {
           <Button component={Link} to="/reviewList" color="inherit">
             Reviews
           </Button>
-          {/*          <Button component={Link} to="/customer" color="inherit">
+{/*          <Button component={Link} to="/customer" color="inherit">
             Customers
           </Button>*/}
           <Button component={Link} to="/storeList" color="inherit">

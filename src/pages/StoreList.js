@@ -1,5 +1,5 @@
 import MyNavbar from "../components/MyNavbar";
-import { Fragment, useState, useEffect } from "react";
+import {Fragment, useState, useEffect} from "react";
 import StoreCard from "../components/StoreCard";
 
 const StoresList = (props) => {
@@ -9,23 +9,23 @@ const StoresList = (props) => {
         <div className="row">
             {stores.map((store, index) => (
                 <Fragment key={`store_${index}`}>
-                    <StoreCard
-                        store={store.stores}>
+                    <StoreCard 
+                    store={store.stores}>
                     </StoreCard>
-
+                    
                 </Fragment>
             ))}
         </div>
-    );
+    ); 
 };
 
 
 
-const StoreList = () => {
+const StoreList= () => {
     const [stores, setStores] = useState([]);
 
     useEffect(() => async () => {
-        fetch(`http://${process.env.REACT_APP_BACKEND_HOST}:3001/api/store`).then((res) => res.json()).then((data) => {
+        fetch("http://localhost:3001/api/store").then((res) => res.json()).then((data) => {
             console.log("data from request", data);
             setStores(data.rows);
         }).catch((err) => {
@@ -35,7 +35,7 @@ const StoreList = () => {
 
     return (
         <Fragment>
-            <MyNavbar hasSearchBar={false} style={{ height: "50px" }}></MyNavbar>
+            <MyNavbar hasSearchBar={false} style={{height:"50px"}}></MyNavbar>
             <StoresList stores={stores}></StoresList>
         </Fragment>);
 };

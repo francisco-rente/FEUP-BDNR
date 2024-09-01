@@ -4,10 +4,12 @@ couchbase = require('couchbase');
 const db = require("../db/database");
 const axios = require('axios');
 
+// container database
+const HOST = "database:8094";
 
-async function check_if_point_lies_within_circle(lat,lon, range) {
-    const query = `{"query": {"field": "geojson", "geometry": {"shape": {"coordinates": [ ${lon}, ${lat}], "type": "circle","radius": "${range}mi"},"relation": "intersects"}}}`; 
-    return await axios.post('http://localhost:8094/api/index/geo_coordinates/query', query, {
+async function check_if_point_lies_within_circle(lat, lon, range) {
+    const query = `{"query": {"field": "geojson", "geometry": {"shape": {"coordinates": [ ${lon}, ${lat}], "type": "circle","radius": "${range}mi"},"relation": "intersects"}}}`;
+    return await axios.post(`http://${HOST}/api/index/geo_coordinates/query`, query, {
         headers: {
             'Content-Type': 'application/json',
         },
@@ -46,7 +48,7 @@ const productController = {
             const scope = db.getScope();
 
             const product_count = await scope.query(count_query, (e, r) => e ? e : r);
-            if(product_count.error) res.status(404).json({ message: 'cannot calculate total products' });
+            if (product_count.error) res.status(404).json({ message: 'cannot calculate total products' });
 
             const products = await scope.query(query
                 , (err, result) => {
@@ -93,14 +95,14 @@ const productController = {
         const customer_id = req.query.customer_id;
         const distance = req.query.distance || 10;
 
-        
+
         const col = db.getCollection("users");
         const user = await col.get(customer_id).then((result) => result).catch((err) => err);
-        if(user.error) return res.status(404).json({ message: "User not found" });
+        if (user.error) return res.status(404).json({ message: "User not found" });
         const [lat, lon] = [user.content.location.coordinates.latitude, user.content.location.coordinates.longitude];
 
-        const stores = await  check_if_point_lies_within_circle(lat, lon, distance * 100);
-        if(stores.error) return res.status(404).json({ message: "No stores found" }); // TODO: return empty array
+        const stores = await check_if_point_lies_within_circle(lat, lon, distance * 100);
+        if (stores.error) return res.status(404).json({ message: "No stores found" }); // TODO: return empty array
         const store_ids = stores["data"]["hits"].map((x) => x.id);
         console.log("stores", stores);
 
@@ -109,30 +111,30 @@ const productController = {
 
         for (const store_id of store_ids) {
             const store = await sto.get(store_id).then((result) => result).catch((err) => err);
-            if(store.error) return res.status(404).json({ message: "Store not found" });
+            if (store.error) return res.status(404).json({ message: "Store not found" });
             product_ids = [...product_ids, ...store.content.store_items.map((x) => x.product_id)];
         }
-        
+
         const prd = db.getCollection("products");
         const products = [];
-        for(const product_id of product_ids) {
+        for (const product_id of product_ids) {
             const product = await prd.get(product_id).then((result) => result).catch((err) => err);
-            if(product.error) return res.status(404).json({ message: "Product not found" });
+            if (product.error) return res.status(404).json({ message: "Product not found" });
             products.push({
-                product : product.content,
+                product: product.content,
             });
         }
-        
+
         const total = stores["data"]["total_hits"];
 
         const response = {
             page: page,
-            total : total,
-            rows: products.slice(0,10)
+            total: total,
+            rows: products.slice(0, 10)
         }
 
         res.status(200).json(response);
-    }, 
+    },
 
     getByFTS: async (req, res, next) => {
         const search_query = req.query.q;
@@ -149,16 +151,16 @@ const productController = {
 
         try {
             const indexName = "productFTS";
-            const results = await clu.searchQuery(indexName, qp, { limit: 10, skip: OFFSET}).then((result) => result).catch((err) => err);
-            if(results.error) res.status(200).json({data: { rows: [] }});
+            const results = await clu.searchQuery(indexName, qp, { limit: 10, skip: OFFSET }).then((result) => result).catch((err) => err);
+            if (results.error) res.status(200).json({ data: { rows: [] } });
 
             const total = results.meta.metrics.total_rows;
 
 
             const product_ids = results.rows.map((row) => row.id);
 
-            if(total === 0) return res.status(200).json({data: { rows: [] }});
-            if(page > Math.ceil(total / 10)) return res.status(404).json({ message: "Page not found" });
+            if (total === 0) return res.status(200).json({ data: { rows: [] } });
+            if (page > Math.ceil(total / 10)) return res.status(404).json({ message: "Page not found" });
 
 
             console.log("product_ids", product_ids);
@@ -169,7 +171,7 @@ const productController = {
             await Promise.all(products).then((values) => {
                 const res_products = {
                     total: Math.ceil(total / 10),
-                    rows: values.map((row) => {return { product : row.value }}),
+                    rows: values.map((row) => { return { product: row.value } }),
                 }
                 console.log("res_products", res_products);
                 res.status(200).json(res_products);
@@ -178,7 +180,8 @@ const productController = {
 
         } catch (err) {
             next(err);
-    }},
+        }
+    },
 
     getStoresByProductId: async (req, res, next) => {
         const productId = req.params.id;
@@ -201,11 +204,11 @@ const productController = {
         catch (err) {
             next(err);
         }
-    }, 
+    },
     addReview: async (req, res, next) => {
         const { review_headline, review_body, star_rating, user_id } = req.body;
         const productId = req.params.id;
-        
+
         // TODO: Super shady fix (specially considering the Listing page), look into alternatives
         // https://docs.couchbase.com/php-sdk/current/concept-docs/documents.html#counters
         // https://github.com/twitter-archive/snowflake
@@ -223,13 +226,14 @@ const productController = {
         const new_review_id = generateId();
 
         const user = await Customer.findById(user_id).then((result) => result.content.name).catch(() => {
-            res.status(404).json({ message: 'user not found' });});
+            res.status(404).json({ message: 'user not found' });
+        });
 
 
         const date = new Date();
         const new_review_date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
         const new_review = {
-            review_id: new_review_id, 
+            review_id: new_review_id,
             customer_id: user_id,
             star_rating: parseInt(star_rating),
             helpful_votes: 0,
@@ -246,37 +250,37 @@ const productController = {
         const user_review_pair = {
             product_id: productId,
             review_id: new_review_id
-        }; 
-        
+        };
+
         console.log(db.getCluster());
 
         const user_collection = db.getCollection("users");
         const product_collection = db.getCollection("products");
 
         await db.getCluster().transactions().run(async (ctx) => {
-            
+
             /* TODO: Check this and see if transaction level is necessary
              * When using a single node cluster (for example, during development),
              * the default number of replicas for a newly created bucket is 1. 
              * If left at this default, all key-value writes performed with durability 
              * will fail with a DurabilityImpossibleError*/
-            
+
             const user = await ctx.get(user_collection, user_id);
 
             if (!user) throw new Error("User not found");
-            
-            console.log("user", user.content.products_reviews_pairs); 
+
+            console.log("user", user.content.products_reviews_pairs);
             console.log("productId", productId);
             // check if user already reviewed the product
             const already_reviewed = user.content.products_reviews_pairs.some(
                 (pair) => pair.product_id === productId);
-            
+
             console.log("already_reviewed", already_reviewed);
             if (already_reviewed) throw new Error("User already reviewed the product");
 
             const new_user = {
                 ...user.content,
-                products_reviews_pairs : user.content.products_reviews_pairs.concat(
+                products_reviews_pairs: user.content.products_reviews_pairs.concat(
                     [{ product_id: productId, review_id: new_review_id }])
             }
             console.log("new_user", new_user);
@@ -293,7 +297,7 @@ const productController = {
             }
             await ctx.replace(product, new_product);
         }).then((result) => {
-            res.status(200).json({ message: 'review added' });    
+            res.status(200).json({ message: 'review added' });
             console.log("Transaction result", result);
         })
             .catch((err) => {
@@ -303,65 +307,65 @@ const productController = {
 
         // TODO: compare alternatives
 
-      //  // TODO: fix it and check if easier is possible
-      //  const update_user_query = "UPDATE server.store.users AS c SET c.reviews = ARRAY_APPEND(c.reviews, " + JSON.stringify(user_review_pair) + ") WHERE c.customer_id = '" + user_id + "';";
-      //  const query = "UPDATE server.store.products AS p SET p.reviews = ARRAY_APPEND(p.reviews, " + JSON.stringify(new_review) + ") WHERE p.product_id = '" + parseInt(productId) + "';";
-      //  
-      //  // merge both into a single transaction
-      //  // ele não gosta disto "SET TRANSACTION ISOLATION LEVEL READ COMMITTED;\n" e "SAVEPOINT sv1", mas era fixe ter
-      //  const transaction = `BEGIN WORK; ${update_user_query} ${query} COMMIT WORK;`;
+        //  // TODO: fix it and check if easier is possible
+        //  const update_user_query = "UPDATE server.store.users AS c SET c.reviews = ARRAY_APPEND(c.reviews, " + JSON.stringify(user_review_pair) + ") WHERE c.customer_id = '" + user_id + "';";
+        //  const query = "UPDATE server.store.products AS p SET p.reviews = ARRAY_APPEND(p.reviews, " + JSON.stringify(new_review) + ") WHERE p.product_id = '" + parseInt(productId) + "';";
+        //  
+        //  // merge both into a single transaction
+        //  // ele não gosta disto "SET TRANSACTION ISOLATION LEVEL READ COMMITTED;\n" e "SAVEPOINT sv1", mas era fixe ter
+        //  const transaction = `BEGIN WORK; ${update_user_query} ${query} COMMIT WORK;`;
 
-      //  console.log("transaction", transaction);
-      //  const scope = db.getScope();
-      //  const insertReview = await new Promise((resolve, reject) => {
-      //      scope.query(transaction, (err, result) => err ? err : result).
-      //          then((result) => {
-      //              console.log("result", result);
-      //              resolve(result);
-      //          }).catch((err) => {
-      //              console.log("err", err);
-      //              reject(err);
-      //          });
-      //  })
+        //  console.log("transaction", transaction);
+        //  const scope = db.getScope();
+        //  const insertReview = await new Promise((resolve, reject) => {
+        //      scope.query(transaction, (err, result) => err ? err : result).
+        //          then((result) => {
+        //              console.log("result", result);
+        //              resolve(result);
+        //          }).catch((err) => {
+        //              console.log("err", err);
+        //              reject(err);
+        //          });
+        //  })
     },
 
-  /*
-  create: async (req, res, next) => {
-    try {
-      const customer = await Store.create(req.body);
-      res.status(201).json(book);
-    } catch (err) {
-      next(err);
-    }
-  },
-
-
-  update: async (req, res, next) => {
-    try {
-      const store = await Store.update(req.params.id, req.body);
-      if (!store) {
-        res.status(404).json({ message: 'store not found' });
-      } else {
-        res.json(store);
+    /*
+    create: async (req, res, next) => {
+      try {
+        const customer = await Store.create(req.body);
+        res.status(201).json(book);
+      } catch (err) {
+        next(err);
       }
-    } catch (err) {
-      next(err);
+    },
+  
+  
+    update: async (req, res, next) => {
+      try {
+        const store = await Store.update(req.params.id, req.body);
+        if (!store) {
+          res.status(404).json({ message: 'store not found' });
+        } else {
+          res.json(store);
+        }
+      } catch (err) {
+        next(err);
+      }
+    },
+  
+    delete: async (req, res, next) => {
+      try {
+        const result = await Store.delete(req.params.id);
+        if (result.cas) {
+          res.sendStatus(204);
+        } else {
+          res.status(404).json({ message: 'store not found' });
+        
+      } catch (err) {
+        next(err);
+      }
     }
-  },
-
-  delete: async (req, res, next) => {
-    try {
-      const result = await Store.delete(req.params.id);
-      if (result.cas) {
-        res.sendStatus(204);
-      } else {
-        res.status(404).json({ message: 'store not found' });
-      
-    } catch (err) {
-      next(err);
-    }
-  }
-  */
+    */
 };
 
 

@@ -1,13 +1,13 @@
 import MyNavbar from "../components/MyNavbar";
-import { Fragment, useState, useEffect } from "react";
+import {Fragment, useState, useEffect} from "react";
 import { useParams } from "react-router-dom";
 import Typography from '@material-ui/core/Typography';
 import { Grid } from "@material-ui/core";
-import { List, ListItem, ListItemText } from '@material-ui/core';
+import {List, ListItem, ListItemText} from '@material-ui/core';
 import { ProductReviewList } from "../components/ProductPage/ProductReviewList";
 import { StoreList } from "../components/ProductPage/StoreList";
 import { ProductInfoCard } from "../components/ProductPage/ProductInfoCard";
-import { Button, TextareaAutosize, Box } from "@material-ui/core";
+import { Button, TextareaAutosize , Box} from "@material-ui/core";
 import { CreateReviewDialog } from "../components/ProductPage/CreateReviewDialog";
 import { makeStyles } from '@material-ui/core/styles';
 import { Divider } from "@material-ui/core";
@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         maxWidth: 360,
         backgroundColor: theme.palette.background.paper,
-    },
+    }, 
     item: {
         height: "100%",
         padding: "5%",
@@ -29,14 +29,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const ReviewButton = ({ product, handleClickOpen, userId }) => {
-
-    if (product === null || userId === null || product.reviews === undefined) return <></>;
+const ReviewButton = ({product, handleClickOpen, userId}) => {
+    
+    if(product === null || userId === null || product.reviews === undefined) return <></>;
     const userHasReviewed = product.reviews.some((review) => review.customer_id == parseInt(userId));
-    if (userHasReviewed) return <></>;
+    if(userHasReviewed) return <></>;
 
     return (
-        <Box align="" justifyContent={"center"} style={{ marginTop: "29px" }}>
+        <Box align="" justifyContent={"center"} style={{marginTop: "29px"}}>
             <Button variant="contained" color="primary" onClick={handleClickOpen} align="center">
                 Add Review
             </Button>
@@ -57,33 +57,33 @@ const Product = () => {
         setRefreshReviews(value);
     }
 
-    const handleClickOpen = () => setOpenCreateReviewDialog(true);
+    const handleClickOpen = () => setOpenCreateReviewDialog(true); 
     const handleClose = () => setOpenCreateReviewDialog(false);
 
-    useEffect(() => async () => {
-        const query = `http://${process.env.REACT_APP_BACKEND_HOST}:3001/api/product/` + id;
+    useEffect( () => async () => {
+        const query = "http://localhost:3001/api/product/" + id; 
         await fetch(query).then((res) => res.json())
             .then((data) => setProduct(data.content))
-            .catch((err) => console.log("err", err));
+            .catch((err) => console.log("err", err)); 
     }, [refreshReviews]);
 
-    useEffect(() => async () => {
-        const query = `http://${process.env.REACT_APP_BACKEND_HOST}:3001/api/product/${id}/stores`;
+    useEffect( () => async () => {
+        const query = "http://localhost:3001/api/product/" + id + "/stores";
         await fetch(query).then((res) => res.json())
             .then((data) => {
                 setStores(data.rows);
             })
             .catch((err) => console.log("err", err));
     }, []);
-
+    
     const classes = useStyles();
 
     return (
         <Fragment>
-            <MyNavbar hasSearchBar={false} style={{ height: "50px" }}></MyNavbar>
+            <MyNavbar hasSearchBar={false} style={{height:"50px"}}></MyNavbar>
 
             <Box mt={100} p={2} className={classes.box}>
-                <Grid container spacing={{ xs: 1, sm: 2, md: 1 }} className={classes.item}>
+                <Grid container spacing={{ xs: 1, sm: 2, md: 1}} className={classes.item}>
 
                     {/*Left side*/}
                     <Grid item xs={6} sm={6} md={6}>
@@ -93,7 +93,7 @@ const Product = () => {
                             </Grid>
                             <Grid item xs={6} sm={6} md={7} >
                                 <Typography variant="h6"
-                                    style={{ paddingBottom: "10px", paddingTop: "10px", fontWeight: "bold" }}
+                                    style={{paddingBottom: "10px", paddingTop: "10px", fontWeight: "bold"}}
                                 >Available at: </Typography>
                                 <List component="nav" aria-label="main mailbox folders">
                                     <StoreList stores={stores} />
@@ -105,18 +105,17 @@ const Product = () => {
                     {/*Right side*/}
                     <Grid item xs={6} sm={6} md={6} className={classes.storesSection}>
                         <CreateReviewDialog open={openCreateReviewDialog} onClose={handleClose} setRefreshReviews={refreshReviewsCallback} product_id={id} />
-                        <Typography variant="h6" align="center" style={
-                            { paddingBottom: "10px", paddingTop: "10px", fontWeight: "bold", marginBottom: "10px" }
+                        <Typography   variant="h6" align="center" style={
+                            {paddingBottom: "10px", paddingTop: "10px", fontWeight: "bold", marginBottom: "10px"}
                         }>Reviews:</Typography>
                         <Divider variant="middle" />
-                        <ProductReviewList reviews={product.reviews} />
+                        <ProductReviewList reviews={product.reviews} /> 
 
                         <ReviewButton product={product} userId={userId} handleClickOpen={handleClickOpen} />
-                    </Grid>
+                    </Grid> 
                 </Grid>
             </Box>
         </Fragment>
-    );
-};
+    );};
 
 export default Product;

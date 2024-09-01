@@ -39,9 +39,9 @@ Read more about it in our final presentation [here](./docs/Couchbase%20-%20Final
 Install docker and docker compose in your machine. Run docker compose to start the database and the backend server.
 
 ```bash
-docker-compose up
+docker compose up
 ```
-
+Open the browser and go to `http://localhost:3000/` to access the application. The database is available at `http://localhost:8091/`.
 
 ## Some pictures of the application
 

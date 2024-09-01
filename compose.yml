@@ -7,28 +7,42 @@ services:
       - "3000"
     ports:
       - "3000:3000"
+    links:
+      - backend:api
+    networks:
+      - mynetwork
     extra_hosts:
       - "host.docker.internal:host-gateway"
-  #  backend:
-  #    build: 
-  #      context: ./server
-  #      dockerfile: Dockerfile
-  #    depends_on:
-  #      frontend:
-  #        condition: service_healthy
-  #    ports:
-  #      - "3001:3001"
-  #    expose:
-  #      - "3001"
+  backend:
+    build: 
+      context: ./server
+      dockerfile: Dockerfile
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+    expose:
+      - "3001"
+    links:
+      - database:db
+    networks:
+      - mynetwork
+
   database:
       build: 
         context: ./database
         dockerfile: Dockerfile
       ports:
-        - "8091-8096:8091-8096"
-        - "11210-11211:11210-11211"
+      - "8091-8096:8091-8096"
       expose:
         - "8091-8096"
         - "11210-11211"
+      networks:
+        - mynetwork
       extra_hosts:
-      - "host.docker.internal:host-gateway"
+        - "host.docker.internal:host-gateway"
+
+networks: 
+  mynetwork:
+    driver: bridge

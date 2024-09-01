@@ -20,6 +20,6 @@ RUN /config_entrypoint.sh
 
 
 HEALTHCHECK --interval=10s --timeout=3s --retries=3 \
-  CMD curl -s -f http://localhost:8091/pools || exit 1
+  CMD curl -s -f http://localhost:8091/ui/index.html || exit 1
 
 

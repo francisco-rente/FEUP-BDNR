@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import SearchBar from "../components/SearchBar";
 import Typography from "@material-ui/core/Typography";
 import { List, ListItem, Divider } from "@material-ui/core";
-import { RegularSlider, FilterSlider } from "../components/FilterSlider";
+import {RegularSlider, FilterSlider} from "../components/FilterSlider";
 import ProductCard from "../components/ProductCard";
 import { Grid } from "@material-ui/core";
 import Stack from '@mui/material/Stack';
@@ -73,7 +73,7 @@ const Products = ({ searchResults }) => {
 
 const SEARCH_TYPE = {
     PRODUCT: "product/fts",
-    REVIEW: "review/fts",
+    REVIEW: "review/fts", 
     DISTANCE: "product/distance",
 };
 
@@ -88,31 +88,34 @@ const ProductList = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [searchType, setSearchType] = useState(SEARCH_TYPE.PRODUCT);
 
-
+    
     const handleChange = (event) => {
         setSearchType(event.target.value);
     };
 
-    async function getProducts(reqPage = page) {
-        const query = `http://${process.env.REACT_APP_BACKEND_HOST}:3001/api/product`;
-        const params = new URLSearchParams({
-            q: "product_title:fts",
-            product_quantity: quantityInterval,
-            product_price: priceInterval,
-            page: reqPage,
-        });
-        await fetch(query + "?" + params)
-            .then((res) => res.json())
-            .then((data) => {
-                console.log("data from getProducts", data);
-                setSearchResults(data.rows);
-                setTotalPages(+data.total);
-            })
-            .catch((err) => console.log(err));
-    }
+    async function getProducts(reqPage=page) {
+        const query = "http://localhost:3001/api/product";
+        console.log("price interval: " + priceInterval);
+           const params = new URLSearchParams({
+               q: "product_title:fts",
+               product_quantity: quantityInterval,
+               product_price: priceInterval,
+               page: reqPage,
+           });
+           await fetch(query + "?" + params)
+               .then((res) => res.json())
+               .then((data) => {
+                    console.log("data from getProducts", data);
+                   setSearchResults(data.rows);
+                   setTotalPages(+data.total);
+               })
+               .catch((err) => console.log(err));
+   }
 
+
+    //function to make call to api for fts
     async function queryProducts(query) {
-        const url = `http://${process.env.REACT_APP_BACKEND_HOST}:3001/api/${searchType}`;
+        const url = `http://localhost:3001/api/${searchType}`; 
         const params = new URLSearchParams({
             page: page,
             q: query
@@ -122,16 +125,16 @@ const ProductList = () => {
         await fetch(url + "?" + params)
             .then((res) => res.json())
             .then((data) => {
-                if (data.length == 0 || !data || !data.rows || data.rows.length == 0) {
+                if(data.length == 0 || !data || !data.rows || data.rows.length == 0) {
                     console.log("No results found");
                     setSearchResults([]);
                     setTotalPages(1);
                     setPage(1);
                 }
-                else {
-                    console.log("data from queryProducts", data)
-                    setSearchResults(data.rows);
-                    setTotalPages(+data.total);
+                else{
+                console.log("data from queryProducts", data)
+                setSearchResults(data.rows);
+                setTotalPages(+data.total);
                 }
             })
             .catch((err) => console.log(err));
@@ -140,11 +143,11 @@ const ProductList = () => {
 
 
 
-
-    useEffect(
-        () => { getProducts() },
-        [quantityInterval, priceInterval]
-    );
+    
+  useEffect(
+    () => {getProducts()},
+    [quantityInterval, priceInterval]
+  );
 
     const handleSearch = (searchTerm) => {
         queryProducts(searchTerm);
@@ -156,20 +159,20 @@ const ProductList = () => {
         getProducts(value);
     }
 
-    const handleDistanceChange = async (event, newValue) => {
+    const handleDistanceChange = async (event,newValue) => {
         event.preventDefault();
         console.log("Distance changed to: " + newValue);
-
+            
         const user = localStorage.getItem("userId");
         console.log("user: " + user);
-        if (!user) return;
+        if(!user) return;
 
         const params = new URLSearchParams({
             page: page,
             distance: newValue,
             customer_id: user
-        });
-        const url = `http://${process.env.REACT_APP_BACKEND_HOST}:3001/api/product/distance`;
+        }); 
+        const url = `http://localhost:3001/api/product/distance`;
 
         await fetch(url + "?" + params,
             {
@@ -230,7 +233,7 @@ const ProductList = () => {
                     </Box>
                 </div>
 
-                <Box sx={{ width: "50%", marginLeft: "25%", marginTop: "1%" }}>
+                <Box sx={{width: "50%", marginLeft: "25%", marginTop: "1%"}}>
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
                             <Typography id="range-slider" gutterBottom>

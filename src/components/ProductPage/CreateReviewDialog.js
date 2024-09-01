@@ -18,12 +18,12 @@ export const CreateReviewDialog = ({ open, onClose, setRefreshReviews, product_i
     const [review_body, setReviewBody] = useState("");
     const [star_rating, setStarRating] = useState(0);
 
-
+    
     async function handleSubmit(event) {
         event.preventDefault();
-        const query = `http://${process.env.REACT_APP_BACKEND_HOST}:3001/api/product/${product_id}/addReview`;
+        const query = "http://localhost:3001/api/product/" + product_id + "/addReview";
         const userId = localStorage.getItem("userId");
-        if (userId === null) return;
+        if(userId === null) return;
 
         const data = {
             review_headline: review_headline,
@@ -74,41 +74,41 @@ export const CreateReviewDialog = ({ open, onClose, setRefreshReviews, product_i
                         justifyContent="center"
                         alignItems="center"
                     >
-                        <TextField
-                            autoFocus
-                            value={review_headline}
-                            margin="dense"
-                            id="review_headline"
-                            label="Review Headline"
-                            type="text"
-                            name="review_headline"
-                            fullWidth
-                            onChange={(e) => setReviewHeadline(e.target.value)}
-                        />
-                        <TextareaAutosize
-                            autoFocus
-                            value={review_body}
-                            variant="outlined"
-                            margin="dense"
-                            mt={2}
-                            id="review_body"
-                            label="Review Body"
-                            type="text"
-                            placeholder="Write your review here"
-                            style={{ width: 300, height: 100 }}
-                            name="review_body"
-                            fullWidth
-                            minRows={3}
-                            minColumns={100}
-                            onChange={(e) => setReviewBody(e.target.value)}
-                        />
-                        <Rating
-                            name="simple-controlled"
-                            value={star_rating}
+                    <TextField
+                        autoFocus
+                        value={review_headline}
+                        margin="dense"
+                        id="review_headline"
+                        label="Review Headline"
+                        type="text"
+                        name="review_headline"
+                        fullWidth
+                        onChange={(e) => setReviewHeadline(e.target.value)}
+                    />
+                    <TextareaAutosize
+                        autoFocus
+                        value={review_body}
+                        variant="outlined"
+                        margin="dense"
+                        mt={2}
+                        id="review_body"
+                        label="Review Body"
+                        type="text"
+                        placeholder="Write your review here"
+                        style={{ width: 300, height: 100 }}
+                        name="review_body"
+                        fullWidth
+                        minRows={3}
+                        minColumns={100}
+                        onChange={(e) => setReviewBody(e.target.value)}
+                    />
+                    <Rating
+                        name="simple-controlled"
+                        value={star_rating}
                             onChange={(event, newValue) => {
-                                setStarRating(newValue);
-                            }}
-                        />
+                            setStarRating(newValue);
+                        }}
+                    />
                     </Stack>
                 </DialogContent>
                 <DialogActions>

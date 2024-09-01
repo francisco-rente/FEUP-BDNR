@@ -1,5 +1,5 @@
 module.exports = {
-    dbUrl: 'couchbase://localhost',
+    dbUrl: 'couchbase://database',
     dbUsername: 'admin',
     dbPassword: 'password',
     bucketName: 'server',
