@@ -8,7 +8,7 @@ done
 echo "Couchbase started"
 
 # create cluster
-couchbase-cli cluster-init -c localhost:8091 --cluster-username admin --cluster-password password --cluster-ramsize 256 --cluster-index-ramsize 256 --cluster-fts-ramsize 256 --services data,index,query,fts,eventing
+couchbase-cli cluster-init -c localhost:8091 --cluster-username admin --cluster-password password --cluster-ramsize 1024 --cluster-index-ramsize 1024 --cluster-fts-ramsize 1024 --services data,index,query,fts,eventing
 
 echo "Cluster created" # Create the user
 couchbase-cli user-manage -c localhost:8091 --username admin --password password --set --rbac-username admin --rbac-password password --rbac-name "Administrator" --roles admin --auth-domain local
@@ -36,6 +36,24 @@ cbimport json -c localhost:8091 -u admin -p password -b server -d file:///opt/co
 cbimport json -c localhost:8091 -u admin -p password -b server -d file:///opt/couchbase/var/lib/couchbase/input/products.json -f list --scope-collection-exp store.products -g %product_id% -t 4
 # import datasets/json/users.json /opt/couchbase/var/lib/couchbase/input/users.json
 cbimport json -c localhost:8091 -u admin -p password -b server -d file:///opt/couchbase/var/lib/couchbase/input/users.json -f list --scope-collection-exp store.users -g %customer_id% -t 4
+
+
+# create eventing function
+couchbase-cli eventing-function-setup -c localhost:8091 --username admin --password password --import --file /opt/couchbase/var/lib/couchbase/input/reviews_eventing.json
+
+# deploy
+couchbase-cli eventing-function-setup -c localhost:8091 --username admin --password password --deploy --name reviews_eventing
+
+REB_STAT=$(couchbase-cli rebalance-status -c localhost:8091 -u admin -p password)
+
+echo "Rebalance status: $REB_STAT"
+while [[ $REB_STAT != *"notRunning"* ]]; do
+  echo "Rebalance running"
+  sleep 5
+  REB_STAT=$(couchbase-cli rebalance-status -c localhost:8091 -u admin -p password)
+done
+
+
 
 # create primary index
 cbq -e localhost:8093 -u admin -p password -s "CREATE PRIMARY INDEX ON server.store.stores" -f json
@@ -75,11 +93,6 @@ cbq -e localhost:8093 -u admin -p password -s "CREATE INDEX product_id ON server
 cbq -e localhost:8093 -u admin -p password -s "CREATE INDEX customer_id ON server.store.users(customer_id)" -f json
 
 
-# create eventing function
-couchbase-cli eventing-function-setup -c localhost:8091 --username admin --password password --import --file /opt/couchbase/var/lib/couchbase/input/reviews_eventing.json
-
-# deploy
-couchbase-cli eventing-function-setup -c localhost:8091 --username admin --password password --deploy --name reviews_eventing
 
 
 
@@ -307,10 +320,12 @@ curl -XPUT -H "Content-Type: application/json" \
 
 echo "FINISHED SETTING UP COUCHBASE"
 
-# TODO: find out why this is needed in this order
+# write to log
+touch /opt/couchbase/var/lib/couchbase/logs/setup.log
+echo "FINISHED" > /opt/couchbase/var/lib/couchbase/logs/setup.log
 
 # keep container running
-tail -f /dev/null
+# tail -f /dev/null
 
-# Attach to couchbase entrypoint
-fg 1
+## Attach to couchbase entrypoint
+#fg 1

@@ -4,6 +4,15 @@
 
 A store management system built on top of real-life reviews, using the react, express and node.js frameworks for the application and the NoSQL Couchbase database for the data storage.
 
+## Features
+
+A fully functional store management system with: 
+ - A frontend in React JS 
+ - A backend in Node JS
+ - A database instance of Couchbase, a NoSQL document-based database. It incorporates features such as transactions, events (triggers), full-text search, and geo-spatial queries.
+
+Read more about it in our final presentation [here](./docs/Couchbase%20-%20Final%20presentation%20-%20G03%20.pdf).
+
 ## Contributors 
 
 - António Ribeiro ([@francisco-rente](https://github.com/francisco-rente))
@@ -27,20 +36,11 @@ A store management system built on top of real-life reviews, using the react, ex
 
 ### Docker 
 
-Install docker in your machine. Run the following command to build the docker image:
+Install docker and docker compose in your machine. Run docker compose to start the database and the backend server.
 
+```bash
+docker-compose up
 ```
-docker build -t test-couchbase .
-``` 
-
-Run the following command to start the docker container, after giving the necessary permissions to the script:
-
-```
-./run_container.sh
-```
-
-You can access the Couchbase Web Console at `http://localhost:8091` with the credentials `admin:password`.
-
 
 
 ## Some pictures of the application

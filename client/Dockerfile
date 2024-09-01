@@ -12,6 +12,9 @@ COPY . .
 
 RUN npm ci --force --only=production
 
+HEALTHCHECK --interval=12s --timeout=12s --start-period=30s \  
+    CMD node healthcheck.js
+EXPOSE 3000
 
 
-CMD [ "node", "index.js" ]
+CMD [ "npm", "start" ]

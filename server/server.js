@@ -25,6 +25,9 @@ app.use('/api/store', storeRoutes);
 app.use('/api/customer', customerRoutes);
 app.use('/api/product', productRoutes);
 app.use('/api/review', reviewRoutes);
+app.get('/health', (req, res) => {
+    res.status(200).send('Server is up and running');
+});
 
 // Use error middleware to handle errors
 //app.use(errorMiddleware);
@@ -35,6 +38,7 @@ app.listen(port, () => {
     database.startDB((err) => {
         if (err) {
             process.exit(1);
+            console.log('Error connecting to database');
         }
         console.log('Database connected.');
     });

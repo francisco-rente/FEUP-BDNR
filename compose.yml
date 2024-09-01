@@ -1,48 +1,34 @@
 services: 
-  frontend: 
-    deploy: 
-      replicas: 1
+  frontend:
     build: 
-      context: ./database/
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    expose: 
-      - "3000"
-    #    depends_on:
-      #  - "backend"
-    networks:
-      - default
-  backend:
-    deploy: 
-      replicas: 1
-    build: 
-      context: ./server
+      context: ./client
       dockerfile: Dockerfile
     expose:
-      - "3001"
-    #    depends_on:
-#      - "database"
-    networks:
-      - default
-  database:
-    deploy: 
-      replicas: 1
-    build: 
-      context: ./database
-      dockerfile: Dockerfile
-    expose: 
-      - "8091-8096"
-      - "11210-11211"
+      - "3000"
     ports:
-      - "8091-8096:8091-8096"
-      - "11210-11211:11210-11211"
-    networks:
-      - default
-
-networks:  
-  default:
-    driver: bridge
-    driver_opts:
-      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
-
+      - "3000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  #  backend:
+  #    build: 
+  #      context: ./server
+  #      dockerfile: Dockerfile
+  #    depends_on:
+  #      frontend:
+  #        condition: service_healthy
+  #    ports:
+  #      - "3001:3001"
+  #    expose:
+  #      - "3001"
+  database:
+      build: 
+        context: ./database
+        dockerfile: Dockerfile
+      ports:
+        - "8091-8096:8091-8096"
+        - "11210-11211:11210-11211"
+      expose:
+        - "8091-8096"
+        - "11210-11211"
+      extra_hosts:
+      - "host.docker.internal:host-gateway"

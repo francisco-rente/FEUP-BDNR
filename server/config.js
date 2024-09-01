@@ -5,5 +5,5 @@ module.exports = {
     bucketName: 'server',
     scopeName: 'store',
     productCollectionName: 'products',
-  };
-  
+};
+
